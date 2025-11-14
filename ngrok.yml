@@ -1,0 +1,6 @@
+version: 2
+authtoken: 34eOjlRlzZG7spLsgGbYE8BcdJf_4j9vAGLADPpQfxXuVyuEf
+tunnels:
+  mcp:
+    addr: 5001
+    proto: http
