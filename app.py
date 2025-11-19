@@ -8,30 +8,43 @@ import pandas as pd
 from dotenv import load_dotenv
 from fastmcp import FastMCP
 
-# 1) Laad .env met expliciet pad
-ENV_PATH = "/Users/dalil/zendesk-mcp-server/.env"
-load_dotenv(ENV_PATH)
+# 1) Laad .env uit dezelfde map als dit bestand (optioneel)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ENV_PATH = os.path.join(BASE_DIR, ".env")
+load_dotenv(ENV_PATH)  # als .env ontbreekt is dat geen fout; dan worden OS env-vars gebruikt
 
-# 2) Lees env en valideer
+# 2) Lees env en valideer verplichte Zendesk-variabelen
+# ---- ZENDESK ENV ----
 ZD_SUB = os.getenv("ZENDESK_SUBDOMAIN")
 ZD_EMAIL = os.getenv("ZENDESK_EMAIL")
 ZD_TOKEN = os.getenv("ZENDESK_API_TOKEN")
+
+# ---- JIRA ENV (optioneel, tools checken dit zelf) ----
+JIRA_BASE_URL = os.getenv("JIRA_BASE_URL")
+JIRA_EMAIL = os.getenv("JIRA_EMAIL")
+JIRA_API_TOKEN = os.getenv("JIRA_API_TOKEN")
+
+# ---- CONFLUENCE ENV (optioneel, tools checken dit zelf) ----
+CONF_BASE_URL = os.getenv("CONFLUENCE_BASE_URL")
+CONF_EMAIL = os.getenv("CONFLUENCE_EMAIL")
+CONF_API_TOKEN = os.getenv("CONFLUENCE_API_TOKEN")
 
 missing = []
 for k in ("ZENDESK_SUBDOMAIN", "ZENDESK_EMAIL", "ZENDESK_API_TOKEN"):
     if not os.getenv(k):
         missing.append(k)
+
 if missing:
     raise RuntimeError(
-        f"Ontbrekende env vars in .env: {missing}. Check {ENV_PATH}"
+        f"Ontbrekende verplichte Zendesk env vars: {missing}. "
+        f"Zet ze als environment variable of in {ENV_PATH}."
     )
 
 AUTH = (f"{ZD_EMAIL}/token", ZD_TOKEN)
 BASE = f"https://{ZD_SUB}.zendesk.com/api/v2"
 
-# 3) MCP server en tools
+# 3) MCP server
 mcp = FastMCP(name="zendesk_mcp_http")
-
 
 # ---------- helpers ----------
 def _get(url_path, params=None, timeout=20):
@@ -78,6 +91,46 @@ def _paginate_search(query: str, limit: int):
         time.sleep(0.15)
     return results[:limit]
 
+# ---------- JIRA HELPERS ----------
+def _jira_get(path: str, params=None, timeout: int = 20):
+    """
+    Kleine helper om Jira REST API te benaderen.
+    path: bv. "/rest/api/3/issue/KEY-123"
+    """
+    if not (JIRA_BASE_URL and JIRA_EMAIL and JIRA_API_TOKEN):
+        raise RuntimeError(
+            "Jira ENV ontbreekt: zet JIRA_BASE_URL, JIRA_EMAIL en JIRA_API_TOKEN in .env"
+        )
+    url = f"{JIRA_BASE_URL.rstrip('/')}{path}"
+    r = requests.get(
+        url,
+        params=params or {},
+        auth=(JIRA_EMAIL, JIRA_API_TOKEN),
+        timeout=timeout,
+    )
+    r.raise_for_status()
+    return r.json()
+
+
+# ---------- CONFLUENCE HELPERS ----------
+def _conf_get(path: str, params=None, timeout: int = 20):
+    """
+    Helper voor Confluence REST API.
+    path: bv. "/rest/api/content/12345"
+    """
+    if not (CONF_BASE_URL and CONF_EMAIL and CONF_API_TOKEN):
+        raise RuntimeError(
+            "Confluence ENV ontbreekt: zet CONFLUENCE_BASE_URL, CONFLUENCE_EMAIL en CONFLUENCE_API_TOKEN in .env"
+        )
+    url = f"{CONF_BASE_URL.rstrip('/')}{path}"
+    r = requests.get(
+        url,
+        params=params or {},
+        auth=(CONF_EMAIL, CONF_API_TOKEN),
+        timeout=timeout,
+    )
+    r.raise_for_status()
+    return r.json()
 
 # ---------- BASIS TEST TOOL ----------
 @mcp.tool
@@ -85,6 +138,18 @@ def ping() -> str:
     """Controleer of MCP actief is."""
     return "pong"
 
+# ---------- DEBUG: ENV VARS ----------
+@mcp.tool
+def debug_env_sources():
+    """DEBUG: laat zien welke Jira/Confluence env-waarden de server ziet."""
+    return {
+        "JIRA_BASE_URL": JIRA_BASE_URL,
+        "JIRA_EMAIL": JIRA_EMAIL,
+        "has_JIRA_TOKEN": bool(JIRA_API_TOKEN),
+        "CONF_BASE_URL": CONF_BASE_URL,
+        "CONF_EMAIL": CONF_EMAIL,
+        "has_CONF_TOKEN": bool(CONF_API_TOKEN),
+    }
 
 # ---------- ZOEKEN (verbeterde variant) ----------
 @mcp.tool
@@ -546,6 +611,200 @@ def tickets_analyze(
     except Exception as e:
         return {"error": str(e), "trace": traceback.format_exc()}
 
+# ---------- JIRA: ISSUE DETAILS ----------
+@mcp.tool
+def jira_get_issue(issue_key: str, max_comments: int = 5):
+    """
+    Haal details op van een Jira-issue (bv. 'TGR-123') inclusief laatste comments.
+    
+    Handig voor:
+    - geparkeerde Zendesk-tickets die een gekoppeld Jira-issue hebben
+    - status + updates van het technische team
+    """
+    try:
+        if not issue_key:
+            return {"ok": False, "error": "issue_key mag niet leeg zijn."}
+
+        data = _jira_get(f"/rest/api/3/issue/{issue_key}")
+
+        fields = data.get("fields", {}) or {}
+        status = (fields.get("status") or {}).get("name")
+        assignee = fields.get("assignee") or {}
+        assignee_name = assignee.get("displayName")
+        summary = fields.get("summary")
+
+        # Comments ophalen (kan via 'fields.comment.comments' of via aparte endpoint)
+        comments_block = fields.get("comment") or {}
+        comments = comments_block.get("comments") or []
+
+        # Sorteer op created en pak de laatste N
+        comments_sorted = sorted(
+            comments,
+            key=lambda c: c.get("created", ""),
+        )
+        latest = comments_sorted[-max_comments:] if comments_sorted else []
+
+        # Minimaliseer comment-inhoud
+        simplified_comments = []
+        for c in latest:
+            author = (c.get("author") or {}).get("displayName")
+            body = c.get("body")
+            # body kan bij Cloud een rich object zijn; we pakken een simpele fallback
+            if isinstance(body, dict) and "content" in body:
+                # heel ruwe extract
+                text = []
+                for b1 in body.get("content", []):
+                    for b2 in b1.get("content", []):
+                        t = b2.get("text")
+                        if t:
+                            text.append(t)
+                body_text = "\n".join(text)
+            else:
+                body_text = str(body) if body is not None else ""
+
+            simplified_comments.append(
+                {
+                    "author": author,
+                    "created": c.get("created"),
+                    "updated": c.get("updated"),
+                    "body": body_text[:2000],  # truncate voor de agent
+                }
+            )
+
+        return {
+            "ok": True,
+            "key": data.get("key"),
+            "summary": summary,
+            "status": status,
+            "assignee": assignee_name,
+            "updated": fields.get("updated"),
+            "latest_comments": simplified_comments,
+            "raw": {"id": data.get("id"), "self": data.get("self")},
+        }
+
+    except requests.exceptions.HTTPError as e:
+        status = e.response.status_code if e.response is not None else None
+        return {
+            "ok": False,
+            "error": f"HTTPError bij Jira issue {issue_key} (status {status})",
+        }
+    except Exception as e:
+        return {"ok": False, "error": str(e), "trace": traceback.format_exc()}
+
+# ---------- CONFLUENCE: SEARCH ----------
+@mcp.tool
+def confluence_search_pages(query: str, limit: int = 10):
+    """
+    Zoek naar Confluence-pagina's op basis van tekst.
+
+    Returns een lijst met paginatitel, id en link.
+    """
+    try:
+        q = (query or "").strip()
+        if not q:
+            return {"ok": False, "error": "query mag niet leeg zijn."}
+
+        # CQL: text~"zoekterm"
+        params = {
+            "cql": f'text ~ "{q}"',
+            "limit": max(1, min(limit, 25)),
+            "expand": "space",
+        }
+
+        data = _conf_get("/rest/api/search", params=params)
+        results = data.get("results", []) or []
+
+        pages = []
+        for r in results:
+            content = r.get("content") or {}
+            if content.get("type") != "page":
+                continue
+            page_id = content.get("id")
+            title = content.get("title")
+            space = (content.get("space") or {}).get("name")
+            # self-link / webLink
+            link = None
+            for l in content.get("_links", {}).values():
+                # _links bevat bv. "webui"; de volledige base zit in CONF_BASE_URL
+                # we bouwen zelf een URL met base
+                pass
+            # Simpele benadering: gebruik CONF_BASE_URL + "/pages/" + id
+            if page_id and CONF_BASE_URL:
+                link = f"{CONF_BASE_URL.rstrip('/')}/pages/{page_id}"
+
+            pages.append(
+                {
+                    "id": page_id,
+                    "title": title,
+                    "space": space,
+                    "url": link,
+                }
+            )
+
+        return {"ok": True, "query": q, "pages": pages}
+
+    except requests.exceptions.HTTPError as e:
+        status = e.response.status_code if e.response is not None else None
+        return {
+            "ok": False,
+            "error": f"HTTPError bij Confluence search (status {status})",
+        }
+    except Exception as e:
+        return {"ok": False, "error": str(e), "trace": traceback.format_exc()}
+
+# ---------- CONFLUENCE: PAGE DETAILS ----------
+@mcp.tool
+def confluence_get_page(page_id: str, include_body: bool = True):
+    """
+    Haal details en (optioneel) body van een Confluence-pagina op.
+
+    - page_id: ID van de pagina (string)
+    """
+    try:
+        if not page_id:
+            return {"ok": False, "error": "page_id mag niet leeg zijn."}
+
+        expand = "version,space"
+        if include_body:
+            expand += ",body.storage"
+
+        data = _conf_get(f"/rest/api/content/{page_id}", params={"expand": expand})
+
+        title = data.get("title")
+        space = (data.get("space") or {}).get("name")
+        version = (data.get("version") or {}).get("number")
+        link = None
+        if CONF_BASE_URL:
+            link = f"{CONF_BASE_URL.rstrip('/')}/pages/{page_id}"
+
+        body_html = None
+        if include_body:
+            storage = (data.get("body") or {}).get("storage") or {}
+            body_html = storage.get("value")
+
+        # De agent kan HTML prima verwerken, maar we beperken de lengte wat
+        if body_html and len(body_html) > 20000:
+            body_html = body_html[:20000]
+
+        return {
+            "ok": True,
+            "id": data.get("id"),
+            "title": title,
+            "space": space,
+            "version": version,
+            "url": link,
+            "body_html": body_html,
+        }
+
+    except requests.exceptions.HTTPError as e:
+        status = e.response.status_code if e.response is not None else None
+        return {
+            "ok": False,
+            "error": f"HTTPError bij Confluence page {page_id} (status {status})",
+        }
+    except Exception as e:
+        return {"ok": False, "error": str(e), "trace": traceback.format_exc()}
+
 # ---------- KENNISBANK: SEARCH ----------
 @mcp.tool
 def kb_search_articles(
@@ -614,25 +873,17 @@ def kb_search_articles(
 # ---------- KENNISBANK: CREATE DRAFT ----------
 @mcp.tool
 def kb_create_draft_article(
-    section_id: int,
-    title: str,
-    body: str,
+    section_id=None,
+    title: str = "",
+    body: str = "",
     locale: str = "nl",
     permission_group_id: int = None,
     user_segment_id: int = None,
 ):
-    """
-    Maak een *concept* (draft) kennisbankartikel in Zendesk Help Center.
-
-    - section_id: Zendesk section ID waar het artikel in moet komen.
-    - title: titel van het artikel.
-    - body: inhoud (HTML of Markdown; wordt 1-op-1 opgeslagen als body).
-    - locale: bv. "nl" of "nl-nl".
-    - permission_group_id / user_segment_id:
-        * geef ze als argument, of
-        * zet ZENDESK_KB_PERMISSION_GROUP_ID en ZENDESK_KB_USER_SEGMENT_ID in .env.
-    """
     try:
+        import os
+        import traceback
+
         t = (title or "").strip()
         b = (body or "").strip()
         if not t:
@@ -640,43 +891,51 @@ def kb_create_draft_article(
         if not b:
             return {"ok": False, "error": "Body mag niet leeg zijn."}
 
-        # Haal defaults eventueel uit env
         pg = permission_group_id or os.getenv("ZENDESK_KB_PERMISSION_GROUP_ID")
         us = user_segment_id or os.getenv("ZENDESK_KB_USER_SEGMENT_ID")
-
         if not pg or not us:
             return {
                 "ok": False,
                 "error": (
                     "permission_group_id en user_segment_id ontbreken. "
-                    "Geef ze als argument of configureer "
-                    "ZENDESK_KB_PERMISSION_GROUP_ID en ZENDESK_KB_USER_SEGMENT_ID in .env."
+                    "Geef ze als argument of zet ZENDESK_KB_PERMISSION_GROUP_ID en "
+                    "ZENDESK_KB_USER_SEGMENT_ID in .env."
+                ),
+            }
+
+        sid_source = section_id if section_id not in (None, "", 0) else os.getenv("ZENDESK_KB_CONCEPT_SECTION_ID")
+        if not sid_source:
+            return {
+                "ok": False,
+                "error": (
+                    "Geen geldige section_id opgegeven en ZENDESK_KB_CONCEPT_SECTION_ID ontbreekt. "
+                    "Zet deze env var of geef een section_id mee."
                 ),
             }
 
         try:
-            pg = int(pg)
-            us = int(us)
-        except ValueError:
+            sid = int(str(sid_source))
+            pg = int(str(pg))
+            us = int(str(us))
+        except Exception:
             return {
                 "ok": False,
-                "error": "permission_group_id en user_segment_id moeten integers zijn.",
+                "error": "section_id, permission_group_id en user_segment_id moeten integers zijn.",
             }
 
         payload = {
             "article": {
                 "title": t,
-                "body": b,  # verwacht HTML of Markdown string
+                "body": b,
                 "locale": locale,
                 "permission_group_id": pg,
                 "user_segment_id": us,
-                "draft": True,  # heel belangrijk: conceptartikel
+                "draft": True,
             },
             "notify_subscribers": False,
         }
 
-        # Zendesk: POST /api/v2/help_center/sections/{section_id}/articles
-        data = _post(f"/help_center/sections/{section_id}/articles.json", payload)
+        data = _post(f"/help_center/{locale}/sections/{sid}/articles.json", payload)
         article = data.get("article") or data
 
         return {
@@ -690,7 +949,71 @@ def kb_create_draft_article(
         }
 
     except Exception as e:
+        import traceback
         return {"ok": False, "error": str(e), "trace": traceback.format_exc()}
+
+# ---------- KENNISBANK: PERMISSIONS EN SEGMENTS LISTEN ----------
+@mcp.tool
+def kb_list_permissions_and_segments(include_built_in: bool = True):
+    """
+    Haalt de lijst op van Guide management permission groups en Help Center user segments.
+
+    Handig om de juiste IDs te vinden voor:
+    - permission_group_id (bij artikelen)
+    - user_segment_id (wie mag het artikel zien)
+    """
+    try:
+        import traceback
+
+        # 1) Permission groups (beheer-rechten voor artikelen)
+        #
+        # API: GET /api/v2/guide/permission_groups.json
+        # BASE = "https://{subdomain}.zendesk.com/api/v2"
+        pg_raw = _get("/guide/permission_groups.json")
+
+        permission_groups = pg_raw.get("permission_groups", pg_raw)
+        pg_simplified = [
+            {
+                "id": pg.get("id"),
+                "name": pg.get("name"),
+                "built_in": pg.get("built_in"),
+            }
+            for pg in permission_groups
+        ]
+
+        # 2) User segments (welke users/agents content mogen zien)
+        #
+        # API: GET /api/v2/help_center/user_segments.json
+        params = {}
+        if not include_built_in:
+            # Alleen custom user segments
+            params["built_in"] = False
+
+        us_raw = _get("/help_center/user_segments.json", params=params)
+        user_segments = us_raw.get("user_segments", us_raw)
+        us_simplified = [
+            {
+                "id": us.get("id"),
+                "name": us.get("name"),
+                "user_type": us.get("user_type"),
+                "built_in": us.get("built_in"),
+            }
+            for us in user_segments
+        ]
+
+        return {
+            "ok": True,
+            "permission_groups": pg_simplified,
+            "user_segments": us_simplified,
+        }
+
+    except Exception as e:
+        import traceback
+        return {
+            "ok": False,
+            "error": str(e),
+            "trace": traceback.format_exc(),
+        }
 
 
 # ---------- EXPORT ----------
