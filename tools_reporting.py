@@ -1,22 +1,11 @@
 # tools_reporting.py - tools voor reporting & export
 
 
-from core import (
-    mcp,
-    _get,
-    _post,
-    _put,
-    _paginate_search,
-    _jira_get,
-    _conf_get,
-    os,
-    csv,
-    time,
-    math,
-    traceback,
-    requests,
-    pd,
-)
+from core import mcp, _paginate_search
+import csv
+import os
+import traceback
+
 
 # =====================================================
 # TOOLS: REPORTING & EXPORT — gebruikt door: Reporting-Agent

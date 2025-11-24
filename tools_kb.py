@@ -1,22 +1,9 @@
 # tools_kb.py - tools voor kennisbank
 
 
-from core import (
-    mcp,
-    _get,
-    _post,
-    _put,
-    _paginate_search,
-    _jira_get,
-    _conf_get,
-    os,
-    csv,
-    time,
-    math,
-    traceback,
-    requests,
-    pd,
-)
+from core import mcp, _get, _post, _paginate_search
+import os
+import traceback
 
 # =====================================================
 # TOOLS: KENNISBANK — gebruikt door: KB-Agent

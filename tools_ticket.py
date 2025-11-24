@@ -1,22 +1,11 @@
 # tools_ticket.py - tools voor tickets
 
 
-from core import (
-    mcp,
-    _get,
-    _post,
-    _put,
-    _paginate_search,
-    _jira_get,
-    _conf_get,
-    os,
-    csv,
-    time,
-    math,
-    traceback,
-    requests,
-    pd,
-)
+from core import mcp, _get, _put, _paginate_search
+import math
+import time
+import traceback
+
 
 # =====================================================
 # TOOLS: TICKETS — gebruikt door: Ticket-Agent
