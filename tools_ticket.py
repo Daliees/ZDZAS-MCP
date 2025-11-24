@@ -134,46 +134,7 @@ Voeg een *interne opmerking* (private comment) toe aan een Zendesk-ticket.
             "error": str(e),
             "trace": traceback.format_exc()
         }
-
-
-# ---------- TICKET CLUSTER TOPICS ----------
-
-
-@mcp.tool
-def ticket_cluster_topics(query: str, limit: int = 300, n_clusters: int = 8):
-    """[Ticket-Agent]
-
-Maak clusters van veelvoorkomende ticketonderwerpen.
-    Gebruik dit om te ontdekken welke problemen het vaakst voorkomen.
-
-    Args:
-        query: Zendesk zoekquery, bijv. "status:solved created>2025-10-01"
-        limit: max aantal tickets om te analyseren
-        n_clusters: gewenste aantal thema-groepen
-    """
-    try:
-        from sklearn.feature_extraction.text import TfidfVectorizer
-        from sklearn.cluster import KMeans
-        tickets = _paginate_search(query=query, limit=limit)
-        subjects = [t.get("subject") or "" for t in tickets]
-        if not subjects:
-            return {"ok": True, "clusters": [], "note": "No subjects found"}
-        vectorizer = TfidfVectorizer(stop_words="english", max_features=500)
-        X = vectorizer.fit_transform(subjects)
-        k = min(max(1, n_clusters), len(subjects))
-        km = KMeans(n_clusters=k, n_init="auto").fit(X)
-        buckets = {}
-        for idx, label in enumerate(km.labels_):
-            buckets.setdefault(int(label), []).append(subjects[idx])
-        clusters = [
-            {"cluster": cid, "count": len(subj), "examples": subj[:5]}
-            for cid, subj in sorted(buckets.items(), key=lambda kv: len(kv[1]), reverse=True)
-        ]
-        return {"ok": True, "clusters": clusters, "total_tickets": len(subjects)}
-    except Exception as e:
-        import traceback
-        return {"error": str(e), "trace": traceback.format_exc()}
-
+    
 # ---------- CATEGORIZE ----------
 
 
