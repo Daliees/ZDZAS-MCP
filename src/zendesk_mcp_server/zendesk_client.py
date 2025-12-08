@@ -1,3 +1,8 @@
+# DEPRECATED: oude MCP server/proxy. Niet meer gebruiken.
+# DEPRECATED: oude MCP server/proxy. Niet meer gebruiken.
+# DEPRECATED: oude MCP server/proxy. Niet meer gebruiken.
+# DEPRECATED: oude MCP server/proxy. Niet meer gebruiken.
+
 from typing import Dict, Any, List
 import json
 import urllib.request

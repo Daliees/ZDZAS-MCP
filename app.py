@@ -13,6 +13,6 @@ import tools_confluence # noqa: F401 # registreert confluence-tools
 
 if __name__ == "__main__":
     try:
-        mcp.run(transport="http", host="127.0.0.1", port=8000, path="/mcp")
+        mcp.run(transport="http", host="127.0.0.1", port=8000, path="/mcp", stateless_http=True,)
     except KeyboardInterrupt:
         print("MCP server netjes afgesloten.")

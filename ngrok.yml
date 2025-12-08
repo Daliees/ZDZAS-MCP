@@ -1,6 +1,30 @@
+#version: 2
+#authtoken: 34eOjlRlzZG7spLsgGbYE8BcdJf_4j9vAGLADPpQfxXuVyuEf
+#tunnels:
+#  mcp:
+#    addr: 5001
+#    proto: http
+
 version: 2
 authtoken: 34eOjlRlzZG7spLsgGbYE8BcdJf_4j9vAGLADPpQfxXuVyuEf
+
 tunnels:
+  # === MCP SERVER ===
+  # Draait bij jou op localhost:8000
+  # Dit is de tunnel die de ZAS agent gebruikt voor zijn hosted MCP tools
   mcp:
-    addr: 5001
+    addr: 8000
     proto: http
+    
+    # optioneel: vaste subdomain (betaald account nodig)
+    # subdomain: zas-mcp
+
+  # === ZAS CHAT API ===
+  # Draait bij jou op localhost:9000
+  # Dit is de tunnel waar je Chrome-extensie op praat
+  zas_chat:
+    addr: 9000
+    proto: http
+    
+    # optioneel: vaste subdomain (betaald account nodig)
+    # subdomain: zas-chat

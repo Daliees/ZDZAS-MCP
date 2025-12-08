@@ -12,7 +12,3 @@ from core import mcp
 def ping() -> str:
     """Controleer of MCP actief is."""
     return "pong"
-
-
-# ---------- ZOEKEN (verbeterde variant) ----------
-# later finetunen

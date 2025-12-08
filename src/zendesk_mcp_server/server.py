@@ -1,3 +1,7 @@
+# DEPRECATED: oude MCP server/proxy. Niet meer gebruiken.
+# DEPRECATED: oude MCP server/proxy. Niet meer gebruiken.
+# DEPRECATED: oude MCP server/proxy. Niet meer gebruiken.
+# DEPRECATED: oude MCP server/proxy. Niet meer gebruiken.
 import asyncio
 import json
 import logging
