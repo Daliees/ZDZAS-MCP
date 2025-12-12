@@ -11,8 +11,8 @@ from fastapi.middleware.cors import CORSMiddleware
 logger = logging.getLogger("mcp_proxy")
 logging.basicConfig(level=logging.INFO)
 
-# URL van je lokale FastMCP-server
-# Voorbeeld: "http://127.0.0.1:8000/mcp" (zonder sessionId; we voegen 'mcp_proxy' zelf toe)
+# URL van lokale FastMCP-server
+# Voorbeeld: "http://127.0.0.1:8000/mcp" (zonder sessionId; voegen 'mcp_proxy' zelf toe)
 MCP_UPSTREAM_URL = os.getenv("MCP_UPSTREAM_URL", "http://127.0.0.1:8000/mcp")
 
 app = FastAPI(

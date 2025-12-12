@@ -9,6 +9,7 @@ version: 2
 authtoken: 34eOjlRlzZG7spLsgGbYE8BcdJf_4j9vAGLADPpQfxXuVyuEf
 
 tunnels:
+  #ft. Sjat GEeepietie
   # === MCP SERVER ===
   # Draait bij jou op localhost:8000
   # Dit is de tunnel die de ZAS agent gebruikt voor zijn hosted MCP tools
