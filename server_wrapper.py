@@ -1,21 +1,37 @@
-from flask import Flask, request, jsonify
-import subprocess, json
+"""
+Unified server wrapper.
 
-app = Flask(__name__)
+Runs both the MCP server and optionally the chat API or proxy.
+"""
 
-@app.route("/health", methods=["GET"])
+from fastapi import FastAPI
+import uvicorn
+
+from src.zas.core import Config, get_config
+
+
+app = FastAPI(title="ZAS Server Wrapper")
+
+
+@app.get("/health")
 def health():
-    return jsonify({"ok": True})
+    """Health check endpoint."""
+    return {"status": "healthy", "service": "zas-wrapper"}
 
-@app.route("/mcp", methods=["POST"])
+
+@app.get("/mcp")
 def mcp():
-    payload = request.get_json(force=True, silent=True) or {}
-    cmd = ["uv", "--directory", ".", "run", "zendesk"]
-    proc = subprocess.Popen(
-        cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-    )
-    out, err = proc.communicate(json.dumps(payload))
-    return jsonify({"stdout": out, "stderr": err})
+    """Info about MCP endpoint."""
+    return {
+        "info": "This is a health endpoint. The actual MCP server runs on port 8000.",
+        "mcp_url": "http://127.0.0.1:8000/mcp"
+    }
+
+
+def main():
+    """Main entry point."""
+    uvicorn.run(app, host="0.0.0.0", port=5000, log_level="info")
+
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5001)
+    main()

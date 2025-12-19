@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>MCP Server</h3>
+        <div class="value">{{ metrics.mcp_requests }}</div>
+        <div>requests</div>
+        <span class="status online">{{ metrics.mcp_status }}</span>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Chat API</h3>
+        <div class="value">{{ metrics.chat_requests }}</div>
+        <div>requests</div>
+        <span class="status online">{{ metrics.chat_status }}</span>
+    </div>
+    
+    <div class="stat-card">
+        <h3>MCP Proxy</h3>
+        <div class="value">{{ metrics.proxy_requests }}</div>
+        <div>requests</div>
+        <span class="status online">{{ metrics.proxy_status }}</span>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Total Requests</h3>
+        <div class="value">{{ metrics.total_requests }}</div>
+        <div>across all services</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Uptime</h3>
+        <div class="value" style="font-size: 1.5rem;">{{ metrics.uptime }}</div>
+        <div>since {{ metrics.start_time }}</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Total Users</h3>
+        <div class="value">{{ stats.total_users }}</div>
+        <div>registered users</div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>📊 Quick Stats</h2>
+    <table>
+        <tr>
+            <td><strong>Total Activities</strong></td>
+            <td>{{ stats.total_activities }}</td>
+        </tr>
+        <tr>
+            <td><strong>Tool Executions</strong></td>
+            <td>{{ stats.total_executions }}</td>
+        </tr>
+        <tr>
+            <td><strong>Conversations</strong></td>
+            <td>{{ stats.total_conversations }}</td>
+        </tr>
+        <tr>
+            <td><strong>Activities Today</strong></td>
+            <td>{{ stats.activities_today }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="card">
+    <h2>ℹ️ System Information</h2>
+    <p>Welcome to the ZAS Dashboard! Use the navigation above to access different features.</p>
+    <ul style="margin-top: 1rem; padding-left: 1.5rem;">
+        <li><strong>Tools:</strong> Execute and monitor ZAS tools</li>
+        <li><strong>Logs:</strong> View activity and execution logs</li>
+        <li><strong>Analytics:</strong> See usage statistics and charts</li>
+    </ul>
+</div>
+{% endblock %}

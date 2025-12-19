@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>Total Users</h3>
+        <div class="value">{{ dashboard_stats.total_users }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Total Activities</h3>
+        <div class="value">{{ dashboard_stats.total_activities }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Tool Executions</h3>
+        <div class="value">{{ dashboard_stats.total_executions }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Conversations</h3>
+        <div class="value">{{ dashboard_stats.total_conversations }}</div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+    <div class="card">
+        <h2>👥 User Activity</h2>
+        <canvas id="userChart"></canvas>
+    </div>
+    
+    <div class="card">
+        <h2>🔧 Tool Usage</h2>
+        <canvas id="toolChart"></canvas>
+    </div>
+</div>
+
+<div class="card">
+    <h2>📊 User Statistics</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Activities</th>
+                <th>Tool Executions</th>
+                <th>Conversations</th>
+                <th>Last Activity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in user_stats %}
+            <tr>
+                <td><strong>{{ user.username }}</strong></td>
+                <td>{{ user.activity_count }}</td>
+                <td>{{ user.tool_executions }}</td>
+                <td>{{ user.conversations }}</td>
+                <td>{{ user.last_activity or 'Never' }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center; color: #a0aec0;">No user statistics yet</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h2>🔧 Tool Statistics</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Tool Name</th>
+                <th>Total Executions</th>
+                <th>Success Rate</th>
+                <th>Avg Time (ms)</th>
+                <th>Last Used</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tool in tool_stats %}
+            <tr>
+                <td><strong>{{ tool.tool_name }}</strong></td>
+                <td>{{ tool.execution_count }}</td>
+                <td style="color: {% if (tool.success_count / tool.execution_count * 100) > 90 %}#38a169{% else %}#e53e3e{% endif %};">
+                    {{ "%.1f"|format(tool.success_count / tool.execution_count * 100) }}%
+                </td>
+                <td>{{ "%.2f"|format(tool.avg_execution_time) if tool.avg_execution_time else 'N/A' }}</td>
+                <td>{{ tool.last_used }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center; color: #a0aec0;">No tool statistics yet</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// User Activity Chart
+const userCtx = document.getElementById('userChart');
+new Chart(userCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ [user.username for user in user_stats[:10]] | tojson }},
+        datasets: [{
+            label: 'Activities',
+            data: {{ [user.activity_count for user in user_stats[:10]] | tojson }},
+            backgroundColor: 'rgba(54, 162, 235, 0.8)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+            y: { beginAtZero: true }
+        },
+        plugins: {
+            legend: { display: false }
+        }
+    }
+});
+
+// Tool Usage Chart
+const toolCtx = document.getElementById('toolChart');
+new Chart(toolCtx, {
+    type: 'pie',
+    data: {
+        labels: {{ [tool.tool_name for tool in tool_stats[:8]] | tojson }},
+        datasets: [{
+            data: {{ [tool.execution_count for tool in tool_stats[:8]] | tojson }},
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.8)',
+                'rgba(54, 162, 235, 0.8)',
+                'rgba(255, 206, 86, 0.8)',
+                'rgba(75, 192, 192, 0.8)',
+                'rgba(153, 102, 255, 0.8)',
+                'rgba(255, 159, 64, 0.8)',
+                'rgba(199, 199, 199, 0.8)',
+                'rgba(83, 102, 255, 0.8)'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: { position: 'right' }
+        }
+    }
+});
+</script>
+{% endblock %}

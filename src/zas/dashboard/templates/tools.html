@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>🔧 Available Tools</h2>
+    <p style="margin-bottom: 1rem; color: #718096;">Execute ZAS tools and view their usage statistics.</p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Tool Name</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tool in tools %}
+            <tr>
+                <td><strong>{{ tool.name }}</strong></td>
+                <td>{{ tool.description }}</td>
+                <td><span style="background: #edf2f7; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem;">{{ tool.category }}</span></td>
+                <td><button class="btn" onclick="executeTool('{{ tool.name }}')">Execute</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h2>📈 Tool Usage Statistics</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Tool Name</th>
+                <th>Executions</th>
+                <th>Success</th>
+                <th>Errors</th>
+                <th>Avg Time (ms)</th>
+                <th>Last Used</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stat in tool_stats %}
+            <tr>
+                <td><strong>{{ stat.tool_name }}</strong></td>
+                <td>{{ stat.execution_count }}</td>
+                <td style="color: #38a169;">{{ stat.success_count }}</td>
+                <td style="color: #e53e3e;">{{ stat.error_count }}</td>
+                <td>{{ stat.avg_execution_time|round(2) if stat.avg_execution_time else 'N/A' }}</td>
+                <td>{{ stat.last_used }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" style="text-align: center; color: #a0aec0;">No tool executions yet</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+async function executeTool(toolName) {
+    if (!confirm(`Execute tool: ${toolName}?`)) return;
+    
+    try {
+        const response = await fetch('/api/tool/execute', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({tool_name: toolName, parameters: {}})
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            alert(`✅ Tool executed successfully!\n\n${result.message}`);
+            location.reload();
+        } else {
+            alert(`❌ Tool execution failed:\n\n${result.message}`);
+        }
+    } catch (error) {
+        alert(`❌ Error: ${error.message}`);
+    }
+}
+</script>
+{% endblock %}
