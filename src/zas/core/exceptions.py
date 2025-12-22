@@ -1,5 +1,7 @@
 """Custom exceptions for ZAS."""
 
+from typing import Optional
+
 
 class ZASException(Exception):
     """Base exception for all ZAS errors."""

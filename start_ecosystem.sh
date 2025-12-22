@@ -16,6 +16,17 @@ echo -e "${BLUE}  ZAS Ecosystem Starter${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
 
+# Activate virtual environment
+if [ -d "venv" ]; then
+    echo -e "${BLUE}Activating virtual environment...${NC}"
+    source venv/bin/activate
+    echo -e "${GREEN}✓ Virtual environment activated${NC}"
+else
+    echo -e "${RED}❌ Error: Virtual environment not found${NC}"
+    echo -e "${YELLOW}Please create it with: python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt${NC}"
+    exit 1
+fi
+
 # Check if .env exists
 if [ ! -f .env ]; then
     echo -e "${RED}❌ Error: .env file not found${NC}"
@@ -49,7 +60,7 @@ echo -e "${GREEN}✓ Python 3 found${NC}"
 
 # Check dependencies
 echo -e "${BLUE}Checking dependencies...${NC}"
-python3 -c "import fastmcp" 2>/dev/null || {
+python -c "import fastmcp" 2>/dev/null || {
     echo -e "${YELLOW}⚠️  Dependencies not installed${NC}"
     echo -e "${BLUE}Installing dependencies...${NC}"
     pip install -r requirements.txt
@@ -79,7 +90,7 @@ echo ""
 # Start MCP Server
 if check_port $MCP_PORT; then
     echo -e "${BLUE}Starting MCP Server on $MCP_HOST:$MCP_PORT...${NC}"
-    nohup python3 app.py > logs/mcp_server.log 2>&1 &
+    nohup python app.py > logs/mcp_server.log 2>&1 &
     MCP_PID=$!
     echo $MCP_PID > logs/mcp_server.pid
     echo -e "${GREEN}✓ MCP Server started (PID: $MCP_PID)${NC}"
@@ -95,7 +106,7 @@ sleep 2
 # Start Chat API
 if check_port $CHAT_API_PORT; then
     echo -e "${BLUE}Starting Chat API on $CHAT_API_HOST:$CHAT_API_PORT...${NC}"
-    nohup python3 chat_api.py > logs/chat_api.log 2>&1 &
+    nohup python chat_api.py > logs/chat_api.log 2>&1 &
     CHAT_PID=$!
     echo $CHAT_PID > logs/chat_api.pid
     echo -e "${GREEN}✓ Chat API started (PID: $CHAT_PID)${NC}"
@@ -111,7 +122,7 @@ sleep 2
 # Start MCP Proxy
 if check_port $MCP_PROXY_PORT; then
     echo -e "${BLUE}Starting MCP Proxy on $MCP_PROXY_HOST:$MCP_PROXY_PORT...${NC}"
-    nohup python3 mcp_proxy.py > logs/mcp_proxy.log 2>&1 &
+    nohup python mcp_proxy.py > logs/mcp_proxy.log 2>&1 &
     PROXY_PID=$!
     echo $PROXY_PID > logs/mcp_proxy.pid
     echo -e "${GREEN}✓ MCP Proxy started (PID: $PROXY_PID)${NC}"
@@ -128,7 +139,7 @@ sleep 2
 TELEGRAM_PID=""
 if [ "${TELEGRAM_ENABLED:-false}" = "true" ] && [ -n "${TELEGRAM_BOT_TOKEN:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
     echo -e "${BLUE}Starting Telegram Bot...${NC}"
-    nohup python3 telegram_bot.py > logs/telegram_bot.log 2>&1 &
+    nohup python telegram_bot.py > logs/telegram_bot.log 2>&1 &
     TELEGRAM_PID=$!
     echo $TELEGRAM_PID > logs/telegram_bot.pid
     echo -e "${GREEN}✓ Telegram Bot started (PID: $TELEGRAM_PID)${NC}"
@@ -146,7 +157,7 @@ DASHBOARD_PORT=${DASHBOARD_PORT:-5000}
 
 if check_port $DASHBOARD_PORT; then
     echo -e "${BLUE}Starting Dashboard on $DASHBOARD_HOST:$DASHBOARD_PORT...${NC}"
-    nohup python3 dashboard.py > logs/dashboard.log 2>&1 &
+    nohup python dashboard.py > logs/dashboard.log 2>&1 &
     DASHBOARD_PID=$!
     echo $DASHBOARD_PID > logs/dashboard.pid
     echo -e "${GREEN}✓ Dashboard started (PID: $DASHBOARD_PID)${NC}"

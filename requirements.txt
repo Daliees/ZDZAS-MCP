@@ -12,7 +12,6 @@ python-dotenv>=1.0.0
 requests>=2.31.0
 
 # Agent framework
-agents>=0.1.0  # Anthropic agents SDK
 
 # Data processing
 pandas>=2.1.0
