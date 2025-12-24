@@ -58,7 +58,6 @@ ngrok.log
 
 # Data exports and temporary files
 *.csv
-tickets_export.csv
 
 # ngrok configuration (contains auth tokens)
 ngrok.yml
