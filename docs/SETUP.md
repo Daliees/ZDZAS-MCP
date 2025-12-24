@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Python 3.x
+- Python 3.8 or higher
 - pip package manager
 - Access to Zendesk, Jira, and Confluence instances
 
@@ -10,7 +10,7 @@
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/Daliees/ZDZAS-MCP.git
+git clone <repository-url>
 cd ZDZAS-MCP
 ```
 
