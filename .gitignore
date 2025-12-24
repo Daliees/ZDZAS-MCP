@@ -66,8 +66,9 @@ ngrok.yml
 # Installers
 get-pip.py
 
-# Lock files (keep requirements.txt, pyproject.toml)
-# Note: Some teams prefer to keep lock files, adjust as needed
+# Lock files
+# Note: uv.lock is kept for reproducible builds with uv package manager
+# requirements.lock is ignored as requirements.txt is the source of truth
 requirements.lock
 
 # Temporary text files

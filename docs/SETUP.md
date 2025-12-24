@@ -10,8 +10,8 @@
 
 1. Clone the repository:
 ```bash
-# Replace with your actual repository URL
-git clone https://github.com/Daliees/ZDZAS-MCP.git
+# Replace USERNAME with the actual repository owner
+git clone https://github.com/USERNAME/ZDZAS-MCP.git
 cd ZDZAS-MCP
 ```
 
