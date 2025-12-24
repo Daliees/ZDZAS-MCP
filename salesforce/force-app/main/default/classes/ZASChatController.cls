@@ -23,7 +23,7 @@ public with sharing class ZASChatController {
         try {
             // ZAS_Chat_Config__mdt is a custom metadata type you should create
             // For now, we'll use a fallback
-            return 'https://your-domain.ngrok-free.app/chat';
+            return 'https://punchable-unilobed-diane.ngrok-free.dev/chat';
         } catch (Exception e) {
             // Fallback to environment variable or default
             return 'http://127.0.0.1:9000/chat';
@@ -45,10 +45,22 @@ public with sharing class ZASChatController {
                 throw new IllegalArgumentException('Message cannot be empty');
             }
             
-            // Prepare request payload
+            // Get Salesforce context information
+            String orgId = UserInfo.getOrganizationId();
+            String userId = UserInfo.getUserId();
+            String userName = UserInfo.getName();
+            String userEmail = UserInfo.getUserEmail();
+            
+            // Prepare request payload with Salesforce context
             Map<String, Object> requestBody = new Map<String, Object>{
                 'message' => message,
-                'conversationId' => conversationId
+                'conversationId' => conversationId,
+                'salesforceContext' => new Map<String, Object>{
+                    'orgId' => orgId,
+                    'userId' => userId,
+                    'userName' => userName,
+                    'userEmail' => userEmail
+                }
             };
             
             // Make HTTP callout
@@ -62,6 +74,10 @@ public with sharing class ZASChatController {
             if (String.isNotBlank(conversationId)) {
                 req.setHeader('X-Session-Id', conversationId);
             }
+            
+            // Add Salesforce context as headers
+            req.setHeader('X-Salesforce-Org-Id', orgId);
+            req.setHeader('X-Salesforce-User-Id', userId);
             
             // Add tenant context if available
             String tenantId = getTenantId();

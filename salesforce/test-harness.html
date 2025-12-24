@@ -269,13 +269,13 @@
         <div class="header">
             <h1>🤖 ZAS Chat Assistant</h1>
             <p>Local Test Harness - Test de chat API voordat je naar Salesforce deployt</p>
-            <button id="toggleConfig">⚙️ Configuratie</button>
+            <!-- <button id="toggleConfig">⚙️ Configuratie</button> -->
         </div>
 
         <div class="config-panel" id="configPanel" style="display: none;">
             <div class="config-row">
                 <label>API Endpoint:</label>
-                <input type="text" id="apiEndpoint" value="http://localhost:9000/chat" />
+                <input type="text" id="apiEndpoint" value="https://punchable-unilobed-diane.ngrok-free.dev/chat" />
             </div>
             <div class="config-row">
                 <label>Conversation ID:</label>
@@ -338,7 +338,7 @@
                 messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
                 messageDiv.innerHTML = `
                     <div class="message-bubble">
-                        <div class="message-text">${escapeHtml(text)}</div>
+                        <div class="message-text">${formatMessageText(text)}</div>
                         <div class="timestamp">${getTimestamp()}</div>
                     </div>
                 `;
@@ -384,6 +384,31 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        function formatMessageText(text) {
+            // Escape HTML first
+            let escaped = escapeHtml(text);
+            
+            // Convert URLs to clickable links
+            escaped = escaped.replace(
+                /(https?:\/\/[^\s<>"]+)/gi,
+                '<a href="$1" target="_blank" style="color: inherit; text-decoration: underline; cursor: pointer;">$1</a>'
+            );
+            
+            // Support **bold** markdown
+            escaped = escaped.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+            
+            // Support *italic* markdown
+            escaped = escaped.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+            
+            // Support `code` markdown
+            escaped = escaped.replace(/`([^`]+)`/g, '<code style="background: rgba(0,0,0,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace;">$1</code>');
+            
+            // Support line breaks
+            escaped = escaped.replace(/\n/g, '<br>');
+            
+            return escaped;
         }
 
         async function sendMessage() {
@@ -460,7 +485,7 @@
             const interval = setInterval(() => {
                 if (wordIndex < words.length) {
                     currentText += (wordIndex > 0 ? ' ' : '') + words[wordIndex];
-                    textElement.textContent = currentText;
+                    textElement.innerHTML = formatMessageText(currentText);
                     wordIndex++;
                 } else {
                     clearInterval(interval);

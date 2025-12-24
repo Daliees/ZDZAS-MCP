@@ -12,11 +12,4 @@
         <target>lightningCommunity__Page</target>
         <target>lightningCommunity__Default</target>
     </targets>
-    <targetConfigs>
-        <targetConfig targets="lightning__AppPage,lightning__HomePage,lightning__RecordPage">
-            <property name="height" type="Integer" default="600" 
-                      label="Chat Window Height (px)" 
-                      description="Height of the chat window in pixels"/>
-        </targetConfig>
-    </targetConfigs>
 </LightningComponentBundle>

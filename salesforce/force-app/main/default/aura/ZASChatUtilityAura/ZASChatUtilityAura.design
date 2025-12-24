@@ -1,0 +1,3 @@
+<design:component label="ZAS Chat Utility">
+    <design:attribute name="panelVisible" label="Panel Visible" description="Controls visibility of the utility panel"/>
+</design:component>

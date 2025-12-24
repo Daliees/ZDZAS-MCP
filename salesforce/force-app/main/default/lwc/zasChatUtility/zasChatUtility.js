@@ -1,7 +1,6 @@
 import { LightningElement, track } from 'lwc';
-import sendMessage from '@salesforce/apex/ZASChatController.sendMessage';
-import resetConversation from '@salesforce/apex/ZASChatController.resetConversation';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import sendMessage from '@salesforce/apex/ZASChatController.sendMessage';
 
 export default class ZasChatUtility extends LightningElement {
     @track messages = [];
@@ -14,7 +13,19 @@ export default class ZasChatUtility extends LightningElement {
     connectedCallback() {
         // Generate a unique session ID for this chat instance
         this.conversationId = this.generateUUID();
-        this.addSystemMessage('ZAS Chat Assistant gestart. Stel gerust uw vraag!');
+        this.addSystemMessage('💬 ZAS Chat Assistant gestart. Stel gerust uw vraag!');
+    }
+
+    get hasError() {
+        return this.errorMessage && this.errorMessage.length > 0;
+    }
+
+    get hasMessages() {
+        return this.messages && this.messages.length > 0;
+    }
+
+    get sendButtonDisabled() {
+        return this.isLoading || !this.inputMessage.trim();
     }
 
     generateUUID() {
@@ -68,11 +79,13 @@ export default class ZasChatUtility extends LightningElement {
     }
 
     updateLastAssistantMessage(text) {
-        const lastMessage = this.messages[this.messages.length - 1];
-        if (lastMessage && !lastMessage.isUser && !lastMessage.isSystem) {
-            lastMessage.text = text;
-            this.messages = [...this.messages];
-            this.scrollToBottom();
+        if (this.messages.length > 0) {
+            const lastMessage = this.messages[this.messages.length - 1];
+            if (lastMessage && !lastMessage.isUser && !lastMessage.isSystem) {
+                lastMessage.text = text;
+                this.messages = [...this.messages];
+                this.scrollToBottom();
+            }
         }
     }
 
@@ -96,47 +109,37 @@ export default class ZasChatUtility extends LightningElement {
 
         // Disable input and show user message
         this.isLoading = true;
+        this.errorMessage = '';
         this.addUserMessage(message);
         this.inputMessage = '';
-        this.errorMessage = '';
-
-        // Show typing indicator
         this.isTyping = true;
 
         try {
-            // Call Apex controller
-            const response = await sendMessage({
+            // Call Apex controller which handles the HTTP request
+            const result = await sendMessage({
                 message: message,
                 conversationId: this.conversationId
             });
 
-            // Hide typing indicator
-            this.isTyping = false;
-
-            // Parse response
-            const result = JSON.parse(response);
+            const data = JSON.parse(result);
             
-            if (result.reply) {
-                // Update conversation ID if new one was generated
-                if (result.conversationId) {
-                    this.conversationId = result.conversationId;
-                }
+            if (data.conversationId) {
+                this.conversationId = data.conversationId;
+            }
 
-                // Simulate streaming effect by showing reply progressively
-                this.simulateStreaming(result.reply);
+            if (data.reply) {
+                this.simulateStreaming(data.reply);
             } else {
-                throw new Error('Geen antwoord ontvangen van de server');
+                throw new Error('No reply received from the API');
             }
 
         } catch (error) {
-            this.isTyping = false;
-            console.error('Error sending message:', error);
-            this.errorMessage = 'Er is een fout opgetreden bij het verzenden van het bericht: ' + 
-                (error.body?.message || error.message);
-            
-            this.showToast('Fout', this.errorMessage, 'error');
+            console.error('Chat error:', error);
+            this.errorMessage = `Error: ${error.message}`;
+            this.addSystemMessage('❌ ' + this.errorMessage);
         } finally {
             this.isLoading = false;
+            this.isTyping = false;
         }
     }
 
@@ -144,7 +147,7 @@ export default class ZasChatUtility extends LightningElement {
         // Add an empty assistant message first
         this.addAssistantMessage('');
         
-        // Split text into chunks for streaming effect
+        // Split text into words for streaming effect
         const words = text.split(' ');
         let currentText = '';
         let wordIndex = 0;
@@ -157,29 +160,36 @@ export default class ZasChatUtility extends LightningElement {
             } else {
                 clearInterval(streamInterval);
             }
-        }, 30); // Adjust speed of streaming here (ms per word)
+        }, 30);
     }
 
-    async handleReset() {
+    handleReset() {
         if (!confirm('Weet u zeker dat u het gesprek wilt resetten?')) {
             return;
         }
 
         try {
-            await resetConversation({
-                conversationId: this.conversationId
-            });
-
-            // Clear messages and reset state
-            this.messages = [];
             this.conversationId = this.generateUUID();
+            this.messages = [];
             this.errorMessage = '';
-            this.addSystemMessage('Gesprek gereset. Begin een nieuwe conversatie!');
+            this.addSystemMessage('🔄 Gesprek gereset. Begin een nieuwe conversatie!');
             
-            this.showToast('Succes', 'Gesprek succesvol gereset', 'success');
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Succes',
+                    message: 'Gesprek succesvol gereset',
+                    variant: 'success',
+                })
+            );
         } catch (error) {
             console.error('Error resetting conversation:', error);
-            this.showToast('Fout', 'Fout bij het resetten van het gesprek', 'error');
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Fout',
+                    message: 'Fout bij het resetten van het gesprek',
+                    variant: 'error',
+                })
+            );
         }
     }
 
@@ -191,26 +201,5 @@ export default class ZasChatUtility extends LightningElement {
                 container.scrollTop = container.scrollHeight;
             }
         }, 0);
-    }
-
-    showToast(title, message, variant) {
-        const event = new ShowToastEvent({
-            title: title,
-            message: message,
-            variant: variant,
-        });
-        this.dispatchEvent(event);
-    }
-
-    get hasError() {
-        return this.errorMessage !== '';
-    }
-
-    get hasMessages() {
-        return this.messages.length > 0;
-    }
-
-    get sendButtonDisabled() {
-        return this.isLoading || !this.inputMessage.trim();
     }
 }

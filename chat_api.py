@@ -8,12 +8,18 @@ import json
 from datetime import datetime
 from typing import Dict, List, Optional, Literal
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Header, Body
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from agents import TResponseInputItem
 from zas_agent import run_zas_chat_turn
+
+# Load .env file
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ENV_PATH = os.path.join(BASE_DIR, ".env")
+load_dotenv(ENV_PATH)
 
 # ---------------------------------------------------------------------------
 # In-memory conversatiegeschiedenis
@@ -42,6 +48,13 @@ app.add_middleware(
 # Pydantic modellen
 # ---------------------------------------------------------------------------
 
+class SalesforceContext(BaseModel):
+    """Salesforce context information"""
+    orgId: Optional[str] = None
+    userId: Optional[str] = None
+    userName: Optional[str] = None
+    userEmail: Optional[str] = None
+
 
 class ChatRequest(BaseModel):
     message: str = Field(..., description="User message")
@@ -50,6 +63,7 @@ class ChatRequest(BaseModel):
     )
     tenantId: Optional[str] = None
     url: Optional[str] = None
+    salesforceContext: Optional[SalesforceContext] = None
 
 
 class ChatResponse(BaseModel):
@@ -91,6 +105,8 @@ async def chat(
     x_zas_tenant_id: Optional[str] = Header(None),
     x_zas_url: Optional[str] = Header(None),
     x_session_id: Optional[str] = Header(None),
+    x_salesforce_org_id: Optional[str] = Header(None, alias="X-Salesforce-Org-Id"),
+    x_salesforce_user_id: Optional[str] = Header(None, alias="X-Salesforce-User-Id"),
 ):
     """
     Hoofd-chat endpoint voor ZAS.
@@ -102,12 +118,48 @@ async def chat(
       (browser / extensie sessies)
     - anders, genereer een nieuwe UUID (nieuwe conversatie)
     """
+
+    # ========== VERBOSE LOGGING START ==========
+    print("\n" + "="*80)
+    print("📥 INCOMING CHAT REQUEST")
+    print("="*80)
+    print(f"⏰ Timestamp: {datetime.now().isoformat()}")
+    print(f"\n📨 Request Body:")
+    print(f"  • message: {req.message!r}")
+    print(f"  • conversationId: {req.conversationId!r}")
+    print(f"  • tenantId: {req.tenantId!r}")
+    print(f"  • url: {req.url!r}")
+    
+    # Log Salesforce context if present
+    if req.salesforceContext:
+        print(f"\n🏢 Salesforce Context (from body):")
+        print(f"  • Org ID: {req.salesforceContext.orgId!r}")
+        print(f"  • User ID: {req.salesforceContext.userId!r}")
+        print(f"  • User Name: {req.salesforceContext.userName!r}")
+        print(f"  • User Email: {req.salesforceContext.userEmail!r}")
+    
+    print(f"\n📋 Headers:")
+    print(f"  • X-Zas-Tenant-Id: {x_zas_tenant_id!r}")
+    print(f"  • X-Zas-Url: {x_zas_url!r}")
+    print(f"  • X-Session-Id: {x_session_id!r}")
+    print(f"  • X-Salesforce-Org-Id: {x_salesforce_org_id!r}")
+    print(f"  • X-Salesforce-User-Id: {x_salesforce_user_id!r}")
+    
+    print(f"\n🔍 Computed Values:")
+    
     tenant_id = req.tenantId or x_zas_tenant_id
     url = req.url or x_zas_url
-
-    # Bepaal conversation id:
     conv_id = req.conversationId or x_session_id or str(uuid.uuid4())
+    
+    print(f"  • Final tenant_id: {tenant_id!r}")
+    print(f"  • Final url: {url!r}")
+    print(f"  • Final conv_id: {conv_id!r}")
+    
     history = conversation_histories.get(conv_id, [])
+    print(f"\n📚 Conversation History:")
+    print(f"  • History length: {len(history)} messages")
+    print("="*80 + "\n")
+    # ========== VERBOSE LOGGING END ==========
 
     try:
         reply_text, updated_history = await run_zas_chat_turn(
@@ -116,6 +168,18 @@ async def chat(
             tenant_id=tenant_id,
             url=url,
         )
+        
+        # ========== VERBOSE RESPONSE LOGGING ==========
+        print("\n" + "="*80)
+        print("📤 OUTGOING CHAT RESPONSE")
+        print("="*80)
+        print(f"  • Reply length: {len(reply_text)} characters")
+        print(f"  • Reply preview: {reply_text[:100]}...")
+        print(f"  • Updated history length: {len(updated_history)} messages")
+        print(f"  • Conversation ID: {conv_id!r}")
+        print("="*80 + "\n")
+        # ========== VERBOSE RESPONSE LOGGING END ==========
+        
     except Exception as e:
         # Log intern, maar geef geen stacktrace aan de client
         print("\n=========== ZAS INTERNAL ERROR ===========")
