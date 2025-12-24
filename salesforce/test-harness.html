@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZAS Chat - Local Test Harness</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .chat-container {
+            height: 500px;
+            overflow-y: auto;
+            padding: 24px;
+            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            display: flex;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.assistant {
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            word-wrap: break-word;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .user .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .assistant .message-bubble {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .system-message {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            font-style: italic;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 6px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 16px;
+            border-bottom-left-radius: 4px;
+            width: fit-content;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #666;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        .input-area {
+            padding: 24px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 12px;
+        }
+
+        #messageInput {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 24px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        #messageInput:focus {
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #sendButton {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        #sendButton:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        #sendButton:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #resetButton {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        #resetButton:hover:not(:disabled) {
+            background: #e0e0e0;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 12px 24px;
+            border-left: 4px solid #c33;
+        }
+
+        .config-panel {
+            padding: 16px 24px;
+            background: #f9f9f9;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .config-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .config-row label {
+            min-width: 120px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .config-row input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+        }
+
+        .timestamp {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 4px;
+        }
+
+        .assistant .timestamp {
+            color: #999;
+        }
+
+        #toggleConfig {
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 8px 16px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 ZAS Chat Assistant</h1>
+            <p>Local Test Harness - Test de chat API voordat je naar Salesforce deployt</p>
+            <button id="toggleConfig">⚙️ Configuratie</button>
+        </div>
+
+        <div class="config-panel" id="configPanel" style="display: none;">
+            <div class="config-row">
+                <label>API Endpoint:</label>
+                <input type="text" id="apiEndpoint" value="http://localhost:9000/chat" />
+            </div>
+            <div class="config-row">
+                <label>Conversation ID:</label>
+                <input type="text" id="conversationId" readonly />
+            </div>
+        </div>
+
+        <div id="errorContainer"></div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="system-message">
+                💬 Chat Assistant gestart. Stel gerust je vraag!
+            </div>
+        </div>
+
+        <div class="input-area">
+            <div class="input-wrapper">
+                <input 
+                    type="text" 
+                    id="messageInput" 
+                    placeholder="Typ je bericht hier..."
+                    autocomplete="off"
+                />
+                <button id="sendButton">Verzenden</button>
+                <button id="resetButton">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let conversationId = generateUUID();
+        let isProcessing = false;
+
+        document.getElementById('conversationId').value = conversationId;
+
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function getTimestamp() {
+            return new Date().toLocaleTimeString('nl-NL', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+
+        function addMessage(text, isUser, isSystem = false) {
+            const container = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            
+            if (isSystem) {
+                messageDiv.className = 'system-message';
+                messageDiv.textContent = text;
+            } else {
+                messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+                messageDiv.innerHTML = `
+                    <div class="message-bubble">
+                        <div class="message-text">${escapeHtml(text)}</div>
+                        <div class="timestamp">${getTimestamp()}</div>
+                    </div>
+                `;
+            }
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+            return messageDiv;
+        }
+
+        function showTypingIndicator() {
+            const container = document.getElementById('chatContainer');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message assistant';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            container.appendChild(typingDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const typing = document.getElementById('typing-indicator');
+            if (typing) {
+                typing.remove();
+            }
+        }
+
+        function showError(message) {
+            const errorContainer = document.getElementById('errorContainer');
+            errorContainer.innerHTML = `<div class="error-message">❌ ${escapeHtml(message)}</div>`;
+            setTimeout(() => {
+                errorContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message || isProcessing) return;
+
+            isProcessing = true;
+            document.getElementById('sendButton').disabled = true;
+            input.value = '';
+
+            // Add user message
+            addMessage(message, true);
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            try {
+                const apiEndpoint = document.getElementById('apiEndpoint').value;
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Session-Id': conversationId
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        conversationId: conversationId
+                    })
+                });
+
+                hideTypingIndicator();
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.conversationId) {
+                    conversationId = data.conversationId;
+                    document.getElementById('conversationId').value = conversationId;
+                }
+
+                // Simulate streaming by adding words progressively
+                if (data.reply) {
+                    simulateStreaming(data.reply);
+                } else {
+                    throw new Error('Geen antwoord ontvangen van de server');
+                }
+
+            } catch (error) {
+                hideTypingIndicator();
+                console.error('Error:', error);
+                showError('Fout bij het verzenden: ' + error.message);
+                addMessage('Sorry, er ging iets fout. Probeer het opnieuw.', false);
+            } finally {
+                isProcessing = false;
+                document.getElementById('sendButton').disabled = false;
+                input.focus();
+            }
+        }
+
+        function simulateStreaming(text) {
+            const words = text.split(' ');
+            let currentText = '';
+            let wordIndex = 0;
+            
+            // Add empty message
+            const messageDiv = addMessage('', false);
+            const textElement = messageDiv.querySelector('.message-text');
+            
+            const interval = setInterval(() => {
+                if (wordIndex < words.length) {
+                    currentText += (wordIndex > 0 ? ' ' : '') + words[wordIndex];
+                    textElement.textContent = currentText;
+                    wordIndex++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 30);
+        }
+
+        async function resetConversation() {
+            if (!confirm('Weet je zeker dat je het gesprek wilt resetten?')) {
+                return;
+            }
+
+            try {
+                const apiEndpoint = document.getElementById('apiEndpoint').value.replace('/chat', '/reset');
+                await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Session-Id': conversationId
+                    },
+                    body: JSON.stringify({
+                        conversationId: conversationId
+                    })
+                });
+
+                // Clear chat
+                const container = document.getElementById('chatContainer');
+                container.innerHTML = '<div class="system-message">🔄 Gesprek gereset. Begin een nieuwe conversatie!</div>';
+
+                // Generate new ID
+                conversationId = generateUUID();
+                document.getElementById('conversationId').value = conversationId;
+
+            } catch (error) {
+                showError('Fout bij reset: ' + error.message);
+            }
+        }
+
+        // Event listeners
+        document.getElementById('sendButton').addEventListener('click', sendMessage);
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        document.getElementById('resetButton').addEventListener('click', resetConversation);
+        document.getElementById('toggleConfig').addEventListener('click', () => {
+            const panel = document.getElementById('configPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // Focus input on load
+        window.addEventListener('load', () => {
+            document.getElementById('messageInput').focus();
+        });
+    </script>
+</body>
+</html>
