@@ -1,2 +1,0 @@
-id,subject,status,priority,assignee_id,requester_id,organization_id,tags,created_at,updated_at
-115018,Vraag bij Nieuw veld Inschaling ( Tigris__Payrolling_info__c ) ,open,normal,19370541483036,367465438899,365574817940,"['backoffice__plaatsing_aanmaken_/_instellen', 'support_aanvraag']",2025-10-30T16:09:40Z,2025-10-31T07:40:45Z
