@@ -10,7 +10,8 @@
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+# Replace with your actual repository URL
+git clone https://github.com/Daliees/ZDZAS-MCP.git
 cd ZDZAS-MCP
 ```
 
@@ -24,7 +25,7 @@ pip install -r requirements.txt
    - Fill in your credentials:
      - `ZENDESK_SUBDOMAIN`: Your Zendesk subdomain
      - `ZENDESK_EMAIL`: Your Zendesk email
-     - `ZENDESK_API_KEY`: Your Zendesk API key
+     - `ZENDESK_API_TOKEN`: Your Zendesk API token
      - `JIRA_BASE_URL`: Your Jira base URL
      - `JIRA_EMAIL`: Your Jira email
      - `JIRA_API_TOKEN`: Your Jira API token
