@@ -5,6 +5,9 @@ import uuid
 import traceback
 import os
 import json
+import logging
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional, Literal
 
@@ -15,11 +18,33 @@ from pydantic import BaseModel, Field
 
 from agents import TResponseInputItem
 from zas_agent import run_zas_chat_turn
+from db import SessionLocal, RequestLog, init_db, upsert_entities
 
 # Load .env file
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ENV_PATH = os.path.join(BASE_DIR, ".env")
 load_dotenv(ENV_PATH)
+# Logging setup (file + structured JSONL)
+# ---------------------------------------------------------------------------
+LOG_DIR = Path(BASE_DIR) / "logs"
+LOG_DIR.mkdir(exist_ok=True)
+LOG_FILE = LOG_DIR / "chat_api.log"
+STRUCTURED_LOG_PATH = os.getenv("ZAS_CHAT_JSONL", str(LOG_DIR / "chat_events.jsonl"))
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+if not logger.handlers:
+    _fh = RotatingFileHandler(str(LOG_FILE), maxBytes=2 * 1024 * 1024, backupCount=3, encoding="utf-8")
+    _fh.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
+    logger.addHandler(_fh)
+
+def _write_jsonl(path: str, obj: dict) -> None:
+    """Append a structured log record as JSONL. Fail-safe (logs exception)."""
+    try:
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(obj, ensure_ascii=False) + "\n")
+    except Exception:
+        logger.exception("Failed to write structured log record")
+init_db()
 
 # ---------------------------------------------------------------------------
 # In-memory conversatiegeschiedenis
@@ -71,6 +96,11 @@ class ChatResponse(BaseModel):
     conversationId: str
 
 
+def estimate_tokens(message: str, reply: str) -> int:
+    """Rough token estimate to log usage without model introspection."""
+    return max(1, int((len(message) + len(reply)) / 4))
+
+
 class FeedbackItem(BaseModel):
     """
     Feedback van de extensie voor een specifiek agent-antwoord.
@@ -112,18 +142,20 @@ async def chat(
     Hoofd-chat endpoint voor ZAS.
 
     Conversation ID resolutie:
-    - als er een expliciete conversationId in de body zit, gebruik die
-      (bijv. backend integraties)
-    - anders, als er een X-Session-Id header is, gebruik die
-      (browser / extensie sessies)
+    - als er een expliciete conversationId in de body zit, gebruik die (bijv. backend integraties)
+    - anders, als er een X-Session-Id header is, gebruik die (browser / extensie sessies)
     - anders, genereer een nieuwe UUID (nieuwe conversatie)
     """
 
+    request_id = str(uuid.uuid4())
+    
     # ========== VERBOSE LOGGING START ==========
     print("\n" + "="*80)
     print("📥 INCOMING CHAT REQUEST")
     print("="*80)
     print(f"⏰ Timestamp: {datetime.now().isoformat()}")
+    print(f"🔖 Request ID: {request_id}")
+    logger.info(f"Incoming /chat request request_id={request_id}")
     print(f"\n📨 Request Body:")
     print(f"  • message: {req.message!r}")
     print(f"  • conversationId: {req.conversationId!r}")
@@ -150,6 +182,10 @@ async def chat(
     tenant_id = req.tenantId or x_zas_tenant_id
     url = req.url or x_zas_url
     conv_id = req.conversationId or x_session_id or str(uuid.uuid4())
+    org_id = (req.salesforceContext.orgId if req.salesforceContext else None) or x_salesforce_org_id
+    user_id = (req.salesforceContext.userId if req.salesforceContext else None) or x_salesforce_user_id
+    user_name = req.salesforceContext.userName if req.salesforceContext else None
+    org_name = None
     
     print(f"  • Final tenant_id: {tenant_id!r}")
     print(f"  • Final url: {url!r}")
@@ -160,6 +196,30 @@ async def chat(
     print(f"  • History length: {len(history)} messages")
     print("="*80 + "\n")
     # ========== VERBOSE LOGGING END ==========
+    
+    # Structured request log
+    _write_jsonl(STRUCTURED_LOG_PATH, {
+        "event": "chat_request",
+        "requestId": request_id,
+        "conversationId": conv_id,
+        "tenantId": tenant_id,
+        "url": url,
+        "message": req.message,
+        "salesforceContext": {
+            "orgId": req.salesforceContext.orgId if req.salesforceContext else None,
+            "userId": req.salesforceContext.userId if req.salesforceContext else None,
+            "userName": req.salesforceContext.userName if req.salesforceContext else None,
+            "userEmail": req.salesforceContext.userEmail if req.salesforceContext else None,
+        },
+        "headers": {
+            "X-Salesforce-Org-Id": x_salesforce_org_id,
+            "X-Salesforce-User-Id": x_salesforce_user_id,
+            "X-Session-Id": x_session_id,
+            "X-Zas-Tenant-Id": x_zas_tenant_id,
+            "X-Zas-Url": x_zas_url,
+        },
+        "timestamp": datetime.now().isoformat(),
+    })
 
     try:
         reply_text, updated_history = await run_zas_chat_turn(
@@ -179,8 +239,75 @@ async def chat(
         print(f"  • Conversation ID: {conv_id!r}")
         print("="*80 + "\n")
         # ========== VERBOSE RESPONSE LOGGING END ==========
+
+        # ========== REQUEST LOGGING TO DB ==========
+        try:
+            tokens_used = estimate_tokens(req.message, reply_text)
+            with SessionLocal() as db:
+                upsert_entities(db, organisation_id=org_id, organisation_name=org_name, user_id=user_id, user_name=user_name)
+                req_log = RequestLog(
+                    request_id=request_id,
+                    user_id=user_id,
+                    organisation_id=org_id,
+                    conversation_id=conv_id,
+                    tenant_id=tenant_id,
+                    message=req.message,
+                    reply=reply_text,
+                    tokens_used=tokens_used,
+                    salesforce_org_id=org_id,
+                    salesforce_user_id=user_id,
+                    salesforce_user_name=user_name,
+                )
+                db.add(req_log)
+                db.commit()
+        except Exception:
+            logger.exception("DB logging failed for request_id=%s", request_id)
+            print("\n=========== ZAS DB LOGGING ERROR ===========")
+            traceback.print_exc()
+            print("============================================\n")
+        
+        # Structured response log
+        _write_jsonl(STRUCTURED_LOG_PATH, {
+            "event": "chat_response",
+            "requestId": request_id,
+            "conversationId": conv_id,
+            "tokensUsed": tokens_used,
+            "replyLength": len(reply_text),
+            "replyPreview": reply_text[:200],
+            "timestamp": datetime.now().isoformat(),
+        })
         
     except Exception as e:
+        logger.exception("Unhandled error on /chat request_id=%s", request_id)
+        
+        # Log error to database
+        try:
+            with SessionLocal() as db:
+                upsert_entities(db, organisation_id=org_id, organisation_name=org_name, user_id=user_id, user_name=user_name)
+                error_log = RequestLog(
+                    request_id=request_id,
+                    user_id=user_id,
+                    organisation_id=org_id,
+                    conversation_id=conv_id,
+                    tenant_id=tenant_id,
+                    message=req.message,
+                    salesforce_org_id=org_id,
+                    salesforce_user_id=user_id,
+                    salesforce_user_name=user_name,
+                    error=str(e),
+                )
+                db.add(error_log)
+                db.commit()
+        except Exception:
+            logger.exception("Failed to log error to database for request_id=%s", request_id)
+        
+        _write_jsonl(STRUCTURED_LOG_PATH, {
+            "event": "chat_error",
+            "requestId": request_id,
+            "error": str(e),
+            "conversationId": req.conversationId,
+            "timestamp": datetime.now().isoformat(),
+        })
         # Log intern, maar geef geen stacktrace aan de client
         print("\n=========== ZAS INTERNAL ERROR ===========")
         traceback.print_exc()

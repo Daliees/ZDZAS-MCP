@@ -1,30 +1,30 @@
 <template>
-    <lightning-card title="ZAS Chat Assistant" icon-name="standard:bot">
+    <div class="wrapper">
         <!-- Error Message -->
         <template if:true={hasError}>
-            <div class="slds-m-around_small">
-                <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
-                    <span class="slds-assistive-text">error</span>
-                    <h2>{errorMessage}</h2>
+            <div class="error-container">
+                <div class="error-message">
+                    <lightning-icon icon-name="utility:error" size="small" class="error-icon"></lightning-icon>
+                    <span>{errorMessage}</span>
                 </div>
             </div>
         </template>
 
         <!-- Messages Container -->
-        <div class="messages-container slds-scrollable_y">
+        <div class="messages-container">
             <template if:false={hasMessages}>
-                <div class="slds-text-align_center slds-p-around_large slds-text-color_weak">
-                    <lightning-icon icon-name="utility:chat" size="large" class="slds-m-bottom_small"></lightning-icon>
+                <div class="empty-state">
+                    <lightning-icon icon-name="utility:chat" size="large" class="empty-icon"></lightning-icon>
                     <p>Nog geen berichten. Start een gesprek!</p>
                 </div>
             </template>
 
             <template for:each={messages} for:item="message">
-                <div key={message.id} class={message.isUser}>
+                <div key={message.id} class={message.cssClass}>
                     <div class="message-bubble">
                         <template if:true={message.isSystem}>
                             <div class="system-message">
-                                <lightning-icon icon-name="utility:info" size="x-small" class="slds-m-right_xx-small"></lightning-icon>
+                                <lightning-icon icon-name="utility:info" size="x-small"></lightning-icon>
                                 <span>{message.text}</span>
                             </div>
                         </template>
@@ -40,7 +40,7 @@
 
             <!-- Typing Indicator -->
             <template if:true={isTyping}>
-                <div class="message-wrapper assistant-message">
+                <div class="message assistant">
                     <div class="message-bubble">
                         <div class="typing-indicator">
                             <span></span>
@@ -52,39 +52,36 @@
             </template>
         </div>
 
-        <!-- Input Area -->
-        <div slot="footer" class="slds-card__footer">
-            <div class="input-container">
-                <lightning-textarea
-                    value={inputMessage}
-                    placeholder="Typ uw vraag hier..."
-                    onchange={handleInputChange}
-                    onkeypress={handleKeyPress}
+        <!-- Input Area - Custom Footer -->
+        <div class="input-container">
+            <lightning-textarea
+                value={inputMessage}
+                placeholder="Typ uw vraag hier..."
+                onchange={handleInputChange}
+                onkeypress={handleKeyPress}
+                disabled={isLoading}
+                class="message-input"
+                max-length="2000"
+                variant="label-hidden"
+            ></lightning-textarea>
+            <div class="button-group">
+                <lightning-button
+                    variant="brand"
+                    title="Verzend bericht"
+                    onclick={handleSend}
+                    disabled={sendButtonDisabled}
+                    icon-name="utility:send"
+                    class="compact-button"
+                ></lightning-button>
+                <lightning-button
+                    variant="neutral"
+                    title="Reset gesprek"
+                    onclick={handleReset}
                     disabled={isLoading}
-                    class="message-input"
-                    max-length="2000"
-                ></lightning-textarea>
-                <div class="button-group">
-                    <lightning-button
-                        variant="brand"
-                        label="Verzenden"
-                        title="Verzend bericht"
-                        onclick={handleSend}
-                        disabled={sendButtonDisabled}
-                        icon-name="utility:send"
-                        icon-position="right"
-                        class="slds-m-right_x-small"
-                    ></lightning-button>
-                    <lightning-button
-                        variant="neutral"
-                        label="Reset"
-                        title="Reset gesprek"
-                        onclick={handleReset}
-                        disabled={isLoading}
-                        icon-name="utility:refresh"
-                    ></lightning-button>
-                </div>
+                    icon-name="utility:refresh"
+                    class="compact-button"
+                ></lightning-button>
             </div>
         </div>
-    </lightning-card>
+    </div>
 </template>

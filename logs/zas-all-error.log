@@ -1,0 +1,187 @@
+2025-12-30 17:25:24 +01:00: 
+2025-12-30 17:25:24 +01:00: 
+2025-12-30 17:25:24 +01:00: +-----------------------------------------------------------------------------+
+2025-12-30 17:25:24 +01:00: |                                                                             |
+2025-12-30 17:25:24 +01:00:  \u2584\u2580\u2580 \u2584\u2580\u2588 \u2588\u2580\u2580 \u2580\u2588\u2580 \u2588\u2580\u2584\u2580\u2588 
+2025-12-30 17:25:24 +01:00: \u2588\u2580\u2580 \u2588\u2580\u2588                        |
+2025-12-30 17:25:24 +01:00: \u2588 \u2588\u2584\u2584 \u2588\u2580\u2580                        |
+2025-12-30 17:25:24 +01:00: |                                                                             |
+2025-12-30 17:25:24 +01:00: |                               FastMCP 2.13.1                                |
+2025-12-30 17:25:24 +01:00: |                                                                             |
+2025-12-30 17:25:24 +01:00: |                                                                             |
+2025-12-30 17:25:24 +01:00: |                  \U0001f5a5  Server name: zendesk_mcp_http                           |
+2025-12-30 17:25:24 +01:00:                                            |
+2025-12-30 17:25:24 +01:00: |                  \U0001f4e6 Transport:   HTTP                                       |
+2025-12-30 17:25:24 +01:00: |                  \U0001f517 Server URL:  http://127.0.0.1:8000/mcp                  |
+2025-12-30 17:25:24 +01:00: |                                                                             |
+2025-12-30 17:25:24 +01:00: |                  \U0001f4da Docs:        https://gofastmcp.com                      |
+2025-12-30 17:25:24 +01:00: |                  \U0001f680 Hosting:     https://fastmcp.cloud                      |
+2025-12-30 17:25:24 +01:00: |                                                                             |
+2025-12-30 17:25:24 +01:00: +-----------------------------------------------------------------------------+
+2025-12-30 17:25:24 +01:00: 
+2025-12-30 17:25:24 +01:00: 
+2025-12-30 17:25:24 +01:00: [12/30/25 17:25:24] INFO     Starting MCP server                 server.py:
+2025-12-30 17:25:24 +01:00: 2055
+2025-12-30 17:25:24 +01:00:                              'zendesk_mcp_http' with transport                 
+2025-12-30 17:25:24 +01:00:                              'http' on http://127.0.0.1:8000/mcp               
+2025-12-30 17:25:24 +01:00: INFO:     Started server process [27420]
+2025-12-30 17:25:24 +01:00: INFO:     Waiting for application startup.
+2025-12-30 17:25:24 +01:00: INFO:     Application startup complete.
+2025-12-30 17:25:24 +01:00: ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 8000): [winerror 10048] only one usage of each socket address (protocol/network address/port) is normally permitted
+2025-12-30 17:25:24 +01:00: INFO:     Waiting for application shutdown.
+2025-12-30 17:25:24 +01:00: INFO:     Application shutdown complete.
+2025-12-30 17:25:24 +01:00: C:\Users\Ryan\code\ZDZAS-MCP\.venv\Lib\site-packages\websockets\legacy\__init__.py:6: DeprecationWarning: websockets.legacy is deprecated; see https://websockets.readthedocs.io/en/stable/howto/upgrade.html for upgrade instructions
+2025-12-30 17:25:24 +01:00:   warnings.warn(  # deprecated in 14.0 - 2024-11-09
+2025-12-30 17:25:24 +01:00: C:\Users\Ryan\code\ZDZAS-MCP\.venv\Lib\site-packages\uvicorn\protocols\websockets\websockets_impl.py:17: DeprecationWarning: websockets.server.WebSocketServerProtocol is deprecated
+2025-12-30 17:25:24 +01:00:   from websockets.server import WebSocketServerProtocol
+2025-12-30 17:25:25 +01:00: Process chat-api:
+2025-12-30 17:25:25 +01:00: Traceback (most recent call last):
+2025-12-30 17:25:25 +01:00:   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.2544.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 313, in _bootstrap
+2025-12-30 17:25:25 +01:00:     self.run()
+2025-12-30 17:25:25 +01:00:     ~~~~~~~~^^
+2025-12-30 17:25:25 +01:00:   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.2544.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 108, in run
+2025-12-30 17:25:25 +01:00:     self._target(*self._args, **self._kwargs)
+2025-12-30 17:25:25 +01:00:     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-12-30 17:25:25 +01:00:   File "C:\Users\Ryan\code\ZDZAS-MCP\start_all.py", line 34, in run_chat_api
+2025-12-30 17:25:25 +01:00:     uvicorn.run(
+2025-12-30 17:25:25 +01:00:     ~~~~~~~~~~~^
+2025-12-30 17:25:25 +01:00:         "chat_api:app",
+2025-12-30 17:25:25 +01:00:         ^^^^^^^^^^^^^^^
+2025-12-30 17:25:25 +01:00:     ...<4 lines>...
+2025-12-30 17:25:25 +01:00:         app_dir=str(BASE_DIR),
+2025-12-30 17:25:25 +01:00:         ^^^^^^^^^^^^^^^^^^^^^^
+2025-12-30 17:25:25 +01:00:     )
+2025-12-30 17:25:25 +01:00:     ^
+2025-12-30 17:25:25 +01:00:   File "C:\Users\Ryan\code\ZDZAS-MCP\.venv\Lib\site-packages\uvicorn\main.py", line 593, in run
+2025-12-30 17:25:25 +01:00:     server.run()
+2025-12-30 17:25:25 +01:00:     ~~~~~~~~~~^^
+2025-12-30 17:25:25 +01:00:   File "C:\Users\Ryan\code\ZDZAS-MCP\.venv\Lib\site-packages\uvicorn\server.py", line 67, in run
+2025-12-30 17:25:25 +01:00:     return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+2025-12-30 17:25:25 +01:00:   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 195, in run
+2025-12-30 17:25:25 +01:00:     return runner.run(main)
+2025-12-30 17:25:25 +01:00:            ~~~~~~~~~~^^^^^^
+2025-12-30 17:25:25 +01:00:   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 118, in run
+2025-12-30 17:25:25 +01:00:     return self._loop.run_until_complete(task)
+2025-12-30 17:25:25 +01:00:            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+2025-12-30 17:25:25 +01:00:   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 725, in run_until_complete
+2025-12-30 17:25:25 +01:00:     return future.result()
+2025-12-30 17:25:25 +01:00:            ~~~~~~~~~~~~~^^
+2025-12-30 17:25:25 +01:00:   File "C:\Users\Ryan\code\ZDZAS-MCP\.venv\Lib\site-packages\uvicorn\server.py", line 71, in serve
+2025-12-30 17:25:25 +01:00:     await self._serve(sockets)
+2025-12-30 17:25:25 +01:00:   File "C:\Users\Ryan\code\ZDZAS-MCP\.venv\Lib\site-packages\uvicorn\server.py", line 78, in _serve
+2025-12-30 17:25:25 +01:00:     config.load()
+2025-12-30 17:25:25 +01:00:     ~~~~~~~~~~~^^
+2025-12-30 17:25:25 +01:00:   File "C:\Users\Ryan\code\ZDZAS-MCP\.venv\Lib\site-packages\uvicorn\config.py", line 439, in load
+2025-12-30 17:25:25 +01:00:     self.loaded_app = import_from_string(self.app)
+2025-12-30 17:25:25 +01:00:                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+2025-12-30 17:25:25 +01:00:   File "C:\Users\Ryan\code\ZDZAS-MCP\.venv\Lib\site-packages\uvicorn\importer.py", line 22, in import_from_string
+2025-12-30 17:25:25 +01:00:     raise exc from None
+2025-12-30 17:25:25 +01:00:   File "C:\Users\Ryan\code\ZDZAS-MCP\.venv\Lib\site-packages\uvicorn\importer.py", line 19, in import_from_string
+2025-12-30 17:25:25 +01:00:     module = importlib.import_module(module_str)
+2025-12-30 17:25:25 +01:00:   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.2544.0_x64__qbz5n2kfra8p0\Lib\importlib\__init__.py", line 88, in import_module
+2025-12-30 17:25:25 +01:00:     return _bootstrap._gcd_import(name[level:], package, level)
+2025-12-30 17:25:25 +01:00:            ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-12-30 17:25:25 +01:00:   File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+2025-12-30 17:25:25 +01:00:   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+2025-12-30 17:25:25 +01:00:   File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+2025-12-30 17:25:25 +01:00:   File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+2025-12-30 17:25:25 +01:00:   File "<frozen importlib._bootstrap_external>", line 1027, in exec_module
+2025-12-30 17:25:25 +01:00:   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+2025-12-30 17:25:25 +01:00:   File "C:\Users\Ryan\code\ZDZAS-MCP\chat_api.py", line 21, in <module>
+2025-12-30 17:25:25 +01:00:     from db import SessionLocal, RequestLog, init_db, upsert_entities
+2025-12-30 17:25:25 +01:00:   File "C:\Users\Ryan\code\ZDZAS-MCP\db.py", line 5, in <module>
+2025-12-30 17:25:25 +01:00:     from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, create_engine
+2025-12-30 17:25:25 +01:00: ModuleNotFoundError: No module named 'sqlalchemy'
+2025-12-31 09:35:52 +01:00: 
+2025-12-31 09:35:52 +01:00: 
+2025-12-31 09:35:52 +01:00: +-----------------------------------------------------------------------------+
+2025-12-31 09:35:52 +01:00: |                                                                             |
+2025-12-31 09:35:52 +01:00: \u2584\u2580\u2580 \u2584\u2580\u2588 \u2588\u2580\u2580 \u2580\u2588\u2580 \u2588\u2580\u2584\u2580\u2588 \u2588\u2580\u2580 \u2588\u2580\u2588                        |
+2025-12-31 09:35:52 +01:00: |                        \u2588\u2580  \u2588\u2580\u2588 \u2584\u2584\u2588  \u2588  \u2588 \u2580 \u2588 \u2588\u2584\u2584 \u2588\u2580\u2580                        |
+2025-12-31 09:35:52 +01:00: |                                                                             |
+2025-12-31 09:35:52 +01:00: |                               FastMCP 2.13.1                                |
+2025-12-31 09:35:52 +01:00: |                                                                             |
+2025-12-31 09:35:52 +01:00: |                                                                             |
+2025-12-31 09:35:52 +01:00: |                  \U0001f5a5  Server name: zendesk_mcp_http                           |
+2025-12-31 09:35:52 +01:00: |                                                                             |
+2025-12-31 09:35:52 +01:00: Transport:   HTTP                                       |
+2025-12-31 09:35:52 +01:00: |                  \U0001f517 Server URL:  http://127.0.0.1:8000/mcp                  |
+2025-12-31 09:35:52 +01:00: |                                                                             |
+2025-12-31 09:35:52 +01:00: |                  \U0001f4da Docs:        https://gofastmcp.com                      |
+2025-12-31 09:35:52 +01:00: |                  \U0001f680 Hosting:     https://fastmcp.cloud                      |
+2025-12-31 09:35:52 +01:00: |                                                                             |
+2025-12-31 09:35:52 +01:00: +-----------------------------------------------------------------------------+
+2025-12-31 09:35:52 +01:00: 
+2025-12-31 09:35:52 +01:00: 
+2025-12-31 09:35:52 +01:00: [12/31/25 09:35:52] 
+2025-12-31 09:35:52 +01:00: INFO     Starting MCP server                 server.py:2055
+2025-12-31 09:35:52 +01:00:                              'zendesk_mcp_http' with transport                 
+2025-12-31 09:35:52 +01:00:                              'http' on http://127.0.0.1:8000/mcp               
+2025-12-31 09:35:52 +01:00: C:\Users\Ryan\code\ZDZAS-MCP\.venv\Lib\site-packages\websockets\legacy\__init__.py:6: DeprecationWarning: websockets.legacy is deprecated; see https://websockets.readthedocs.io/en/stable/howto/upgrade.html for upgrade instructions
+2025-12-31 09:35:52 +01:00:   warnings.warn(  # deprecated in 14.0 - 2024-11-09
+2025-12-31 09:35:53 +01:00: INFO:     Started server process [38976]
+2025-12-31 09:35:53 +01:00: INFO:     Waiting for application startup.
+2025-12-31 09:35:53 +01:00: INFO:     Application startup complete.
+2025-12-31 09:35:53 +01:00: ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 8000): [winerror 10048] only one usage of each socket address (protocol/network address/port) is normally permitted
+2025-12-31 09:35:53 +01:00: INFO:     Waiting for application shutdown.
+2025-12-31 09:35:53 +01:00: INFO:     Application shutdown complete.
+2025-12-31 09:35:53 +01:00: C:\Users\Ryan\code\ZDZAS-MCP\.venv\Lib\site-packages\uvicorn\protocols\websockets\websockets_impl.py:17: DeprecationWarning: websockets.server.WebSocketServerProtocol is deprecated
+2025-12-31 09:35:53 +01:00:   from websockets.server import WebSocketServerProtocol
+2025-12-31 09:36:06 +01:00: Process chat-api:
+2025-12-31 09:36:06 +01:00: Traceback (most recent call last):
+2025-12-31 09:36:06 +01:00:   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.2544.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 313, in _bootstrap
+2025-12-31 09:36:06 +01:00:     self.run()
+2025-12-31 09:36:06 +01:00:     ~~~~~~~~^^
+2025-12-31 09:36:06 +01:00:   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.2544.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 108, in run
+2025-12-31 09:36:06 +01:00:     self._target(*self._args, **self._kwargs)
+2025-12-31 09:36:06 +01:00:     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-12-31 09:36:06 +01:00:   File "C:\Users\Ryan\code\ZDZAS-MCP\start_all.py", line 34, in run_chat_api
+2025-12-31 09:36:06 +01:00:     uvicorn.run(
+2025-12-31 09:36:06 +01:00:     ~~~~~~~~~~~^
+2025-12-31 09:36:06 +01:00:         "chat_api:app",
+2025-12-31 09:36:06 +01:00:         ^^^^^^^^^^^^^^^
+2025-12-31 09:36:06 +01:00:     ...<4 lines>...
+2025-12-31 09:36:06 +01:00:         app_dir=str(BASE_DIR),
+2025-12-31 09:36:06 +01:00:         ^^^^^^^^^^^^^^^^^^^^^^
+2025-12-31 09:36:06 +01:00:     )
+2025-12-31 09:36:06 +01:00:     ^
+2025-12-31 09:36:06 +01:00:   File "C:\Users\Ryan\code\ZDZAS-MCP\.venv\Lib\site-packages\uvicorn\main.py", line 593, in run
+2025-12-31 09:36:06 +01:00:     server.run()
+2025-12-31 09:36:06 +01:00:     ~~~~~~~~~~^^
+2025-12-31 09:36:06 +01:00:   File "C:\Users\Ryan\code\ZDZAS-MCP\.venv\Lib\site-packages\uvicorn\server.py", line 67, in run
+2025-12-31 09:36:06 +01:00:     return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+2025-12-31 09:36:06 +01:00:   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 195, in run
+2025-12-31 09:36:06 +01:00:     return runner.run(main)
+2025-12-31 09:36:06 +01:00:            ~~~~~~~~~~^^^^^^
+2025-12-31 09:36:06 +01:00:   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 118, in run
+2025-12-31 09:36:06 +01:00:     return self._loop.run_until_complete(task)
+2025-12-31 09:36:06 +01:00:            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+2025-12-31 09:36:06 +01:00:   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 725, in run_until_complete
+2025-12-31 09:36:06 +01:00:     return future.result()
+2025-12-31 09:36:06 +01:00:            ~~~~~~~~~~~~~^^
+2025-12-31 09:36:06 +01:00:   File "C:\Users\Ryan\code\ZDZAS-MCP\.venv\Lib\site-packages\uvicorn\server.py", line 71, in serve
+2025-12-31 09:36:06 +01:00:     await self._serve(sockets)
+2025-12-31 09:36:06 +01:00:   File "C:\Users\Ryan\code\ZDZAS-MCP\.venv\Lib\site-packages\uvicorn\server.py", line 78, in _serve
+2025-12-31 09:36:06 +01:00:     config.load()
+2025-12-31 09:36:06 +01:00:     ~~~~~~~~~~~^^
+2025-12-31 09:36:06 +01:00:   File "C:\Users\Ryan\code\ZDZAS-MCP\.venv\Lib\site-packages\uvicorn\config.py", line 439, in load
+2025-12-31 09:36:06 +01:00:     self.loaded_app = import_from_string(self.app)
+2025-12-31 09:36:06 +01:00:                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+2025-12-31 09:36:06 +01:00:   File "C:\Users\Ryan\code\ZDZAS-MCP\.venv\Lib\site-packages\uvicorn\importer.py", line 22, in import_from_string
+2025-12-31 09:36:06 +01:00:     raise exc from None
+2025-12-31 09:36:06 +01:00:   File "C:\Users\Ryan\code\ZDZAS-MCP\.venv\Lib\site-packages\uvicorn\importer.py", line 19, in import_from_string
+2025-12-31 09:36:06 +01:00:     module = importlib.import_module(module_str)
+2025-12-31 09:36:06 +01:00:   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.2544.0_x64__qbz5n2kfra8p0\Lib\importlib\__init__.py", line 88, in import_module
+2025-12-31 09:36:06 +01:00:     return _bootstrap._gcd_import(name[level:], package, level)
+2025-12-31 09:36:06 +01:00:            ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-12-31 09:36:06 +01:00:   File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+2025-12-31 09:36:06 +01:00:   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+2025-12-31 09:36:06 +01:00:   File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+2025-12-31 09:36:06 +01:00:   File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+2025-12-31 09:36:06 +01:00:   File "<frozen importlib._bootstrap_external>", line 1027, in exec_module
+2025-12-31 09:36:06 +01:00:   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+2025-12-31 09:36:06 +01:00:   File "C:\Users\Ryan\code\ZDZAS-MCP\chat_api.py", line 21, in <module>
+2025-12-31 09:36:06 +01:00:     from db import SessionLocal, RequestLog, init_db, upsert_entities
+2025-12-31 09:36:06 +01:00:   File "C:\Users\Ryan\code\ZDZAS-MCP\db.py", line 5, in <module>
+2025-12-31 09:36:06 +01:00:     from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Text, create_engine
+2025-12-31 09:36:06 +01:00: ModuleNotFoundError: No module named 'sqlalchemy'

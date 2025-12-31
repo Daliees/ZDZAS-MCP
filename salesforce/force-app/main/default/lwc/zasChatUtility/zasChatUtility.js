@@ -42,6 +42,7 @@ export default class ZasChatUtility extends LightningElement {
             text: text,
             isUser: false,
             isSystem: true,
+            cssClass: 'message system',
             timestamp: new Date().toLocaleTimeString('nl-NL', { 
                 hour: '2-digit', 
                 minute: '2-digit' 
@@ -56,6 +57,7 @@ export default class ZasChatUtility extends LightningElement {
             text: text,
             isUser: true,
             isSystem: false,
+            cssClass: 'message user',
             timestamp: new Date().toLocaleTimeString('nl-NL', { 
                 hour: '2-digit', 
                 minute: '2-digit' 
@@ -70,6 +72,7 @@ export default class ZasChatUtility extends LightningElement {
             text: text,
             isUser: false,
             isSystem: false,
+            cssClass: 'message assistant',
             timestamp: new Date().toLocaleTimeString('nl-NL', { 
                 hour: '2-digit', 
                 minute: '2-digit' 

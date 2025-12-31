@@ -10,6 +10,8 @@ pydantic==2.12.4
 python-dotenv==1.2.1
 requests==2.32.5
 uvicorn==0.38.0
+SQLAlchemy==2.0.36
+openai-agents==0.6.4
 
 # WARNING(pigar): some manual fixes might be required as pigar has detected duplicate requirements for the same import name (possibly for different submodules).
 # WARNING(pigar): the following duplicate requirements are for the import name: agents
