@@ -37,7 +37,7 @@ def _parse_mcp_response(tool_name: str, resp: requests.Response) -> Any:
 
     # Baselogging zodat we zien wat er gebeurt
     print(f"[MCP DEBUG] tool={tool_name} status={resp.status_code} content_type={ct}")
-    # Als je wilt, kun je body tijdelijk loggen bij het debuggen:
+    # body tijdelijk loggen bij het debuggen:
     # print(f"[MCP DEBUG] body snippet={body[:200]!r}")
 
     if not body:
@@ -375,6 +375,7 @@ GEBRUIK
 - Standaardquery: `status:solved created>2025-10-01`, limit 100.
 - Voor relevante kennisbankartikelen geef je altijd de link (https://... zonder HTML markeringen!) naar de gevonden artikelen mee in jouw antwoord naar de support medewerker
 - wanneer er gevraagd word om een interne comment te plaatsen, zet je je volledige analyse in de comment, beginnend met "Analyse door ZAS Agent:", gevolgd door je analyse over desbetreffende ticket.
+- Wanneer er gevraagd word om een volledige ticketanalyse uit te voeren, geef dan een gestructureerd antwoord i.p.v. de directe JSON te laten zien.
 
 Gebruik kb_ensure_agent_concept_section om de sectie voor ZAS-conceptartikelen te bepalen.
 Gebruik de teruggegeven section_id bij kb_create_draft_article.
