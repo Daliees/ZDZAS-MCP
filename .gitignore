@@ -13,6 +13,25 @@ __pycache__/
 *.pyd
 .Python
 
+# Environments / secrets
+.env
+.env.*
+env-dot
+!*.example
+
+# Editors / tooling
+.vscode/
+.idea/
+
+# Logs & run artifacts
+logs/
+*.log
+*.jsonl
+*.db
+nohup.out
+wrapper.log
+ngrok.log
+
 # OS
 .DS_Store
 Thumbs.db
