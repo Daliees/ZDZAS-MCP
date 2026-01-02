@@ -4,7 +4,7 @@ from . import server
 
 
 def main():
-    asyncio.run(server.main())
+	asyncio.run(server.main())
 
 
 __all__ = ["main", "server"]

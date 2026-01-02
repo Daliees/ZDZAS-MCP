@@ -10,5 +10,5 @@ from core import mcp
 
 @mcp.tool
 def ping() -> str:
-    """Controleer of MCP actief is."""
-    return "pong"
+	"""Controleer of MCP actief is."""
+	return "pong"
