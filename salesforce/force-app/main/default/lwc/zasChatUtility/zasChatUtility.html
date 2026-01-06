@@ -30,7 +30,7 @@
                         </template>
                         <template if:false={message.isSystem}>
                             <div class="message-content">
-                                <lightning-formatted-rich-text value={message.text}></lightning-formatted-rich-text>
+                                <lightning-formatted-rich-text value={message.html}></lightning-formatted-rich-text>
                             </div>
                             <div class="message-time">{message.timestamp}</div>
                         </template>

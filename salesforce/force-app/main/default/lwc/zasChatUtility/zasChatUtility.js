@@ -37,45 +37,51 @@ export default class ZasChatUtility extends LightningElement {
     }
 
     addSystemMessage(text) {
+        const html = this.markdownToHtml(text);
         this.messages = [...this.messages, {
             id: Date.now(),
             text: text,
+            html: html,
             isUser: false,
             isSystem: true,
             cssClass: 'message system',
-            timestamp: new Date().toLocaleTimeString('nl-NL', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
+            timestamp: new Date().toLocaleTimeString('nl-NL', {
+                hour: '2-digit',
+                minute: '2-digit'
             })
         }];
         this.scrollToBottom();
     }
 
     addUserMessage(text) {
+        const html = this.markdownToHtml(text);
         this.messages = [...this.messages, {
             id: Date.now(),
             text: text,
+            html: html,
             isUser: true,
             isSystem: false,
             cssClass: 'message user',
-            timestamp: new Date().toLocaleTimeString('nl-NL', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
+            timestamp: new Date().toLocaleTimeString('nl-NL', {
+                hour: '2-digit',
+                minute: '2-digit'
             })
         }];
         this.scrollToBottom();
     }
 
     addAssistantMessage(text) {
+        const html = this.markdownToHtml(text);
         this.messages = [...this.messages, {
             id: Date.now(),
             text: text,
+            html: html,
             isUser: false,
             isSystem: false,
             cssClass: 'message assistant',
-            timestamp: new Date().toLocaleTimeString('nl-NL', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
+            timestamp: new Date().toLocaleTimeString('nl-NL', {
+                hour: '2-digit',
+                minute: '2-digit'
             })
         }];
         this.scrollToBottom();
@@ -86,6 +92,7 @@ export default class ZasChatUtility extends LightningElement {
             const lastMessage = this.messages[this.messages.length - 1];
             if (lastMessage && !lastMessage.isUser && !lastMessage.isSystem) {
                 lastMessage.text = text;
+                lastMessage.html = this.markdownToHtml(text);
                 this.messages = [...this.messages];
                 this.scrollToBottom();
             }
@@ -105,7 +112,7 @@ export default class ZasChatUtility extends LightningElement {
 
     async handleSend() {
         const message = this.inputMessage.trim();
-        
+
         if (!message) {
             return;
         }
@@ -125,7 +132,7 @@ export default class ZasChatUtility extends LightningElement {
             });
 
             const data = JSON.parse(result);
-            
+
             if (data.conversationId) {
                 this.conversationId = data.conversationId;
             }
@@ -149,7 +156,7 @@ export default class ZasChatUtility extends LightningElement {
     simulateStreaming(text) {
         // Add an empty assistant message first
         this.addAssistantMessage('');
-        
+
         // Split text into words for streaming effect
         const words = text.split(' ');
         let currentText = '';
@@ -176,7 +183,7 @@ export default class ZasChatUtility extends LightningElement {
             this.messages = [];
             this.errorMessage = '';
             this.addSystemMessage('🔄 Gesprek gereset. Begin een nieuwe conversatie!');
-            
+
             this.dispatchEvent(
                 new ShowToastEvent({
                     title: 'Succes',
@@ -204,5 +211,43 @@ export default class ZasChatUtility extends LightningElement {
                 container.scrollTop = container.scrollHeight;
             }
         }, 0);
+    }
+
+    // Minimal Markdown -> HTML converter for bold, italics, code and links.
+    // Output is rendered via lightning-formatted-rich-text, which sanitizes HTML.
+    markdownToHtml(md) {
+        if (!md) {
+            return '';
+        }
+        let html = md;
+        // Escape HTML basic characters first to avoid injection
+        html = html
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+        // Code blocks ```code```
+        html = html.replace(/```([\s\S]*?)```/g, (m, p1) => {
+            return `<pre><code>${p1.replace(/\n/g, '\n')}</code></pre>`;
+        });
+        // Inline code `code`
+        html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+        // Bold **text**
+        html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+        // Italic _text_ or *text*
+        html = html.replace(/(?:^|\W)_(.*?)_(?=\W|$)/g, (m, p1) => m.replace(`_${p1}_`, `<em>${p1}</em>`));
+        html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        // Links [text](url)
+        html = html.replace(/\[([^\]]+)\]\((https?:[^\)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+        // Simple headers #, ##, ###
+        html = html.replace(/^###\s+(.*)$/gm, '<h3>$1</h3>');
+        html = html.replace(/^##\s+(.*)$/gm, '<h2>$1</h2>');
+        html = html.replace(/^#\s+(.*)$/gm, '<h1>$1</h1>');
+        // Line breaks: double newline -> paragraph
+        html = html.replace(/\r\n/g, '\n');
+        html = html.replace(/\n\n+/g, '</p><p>');
+        html = `<p>${html}</p>`;
+        // Single newline -> <br/>
+        html = html.replace(/\n/g, '<br/>');
+        return html;
     }
 }

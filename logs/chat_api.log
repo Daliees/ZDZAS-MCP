@@ -253,3 +253,21 @@ sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table request_logs h
 [SQL: INSERT INTO request_logs (request_id, user_id, organisation_id, conversation_id, tenant_id, message, reply, tokens_used, salesforce_org_id, salesforce_user_id, salesforce_user_name, error, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
 [parameters: ('e00beee3-1fe9-413e-8c08-86435022da22', '00509000004fpIaAAI', '00D09000007j3AtEAI', 'ef3e1cb0-1ddf-4421-884e-f7d4a954620a', '00D09000007j3AtEAI', 'ping', 'De FastMCP-server is bereikbaar en functioneert naar behoren. Hoe kan ik u verder helpen?', 23, '00D09000007j3AtEAI', '00509000004fpIaAAI', 'Admin Tigris', None, '2025-12-30 16:34:32.944113')]
 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-01-05 13:45:58,760 INFO HTTP POST /chat ip=160.8.26.8 user=00509000004fpIaAAI org=00D09000007j3AtEAI
+2026-01-05 13:46:02,719 INFO CHAT request request_id=b7d77f79-94fd-40da-836e-c059b310d0bd conv_id=c098c5c7-39f9-499b-8d15-401a8669b5ad tenant=00D09000007j3AtEAI user_id=00509000004fpIaAAI message_len=5 history_len=0
+2026-01-05 13:46:22,596 INFO HTTP POST /chat ip=160.8.26.8 user=00509000004fpIaAAI org=00D09000007j3AtEAI
+2026-01-05 13:46:22,597 INFO CHAT request request_id=6bb3449c-8c2d-4347-91a2-b8390a776d5b conv_id=c098c5c7-39f9-499b-8d15-401a8669b5ad tenant=00D09000007j3AtEAI user_id=00509000004fpIaAAI message_len=38 history_len=4
+2026-01-05 16:13:16,566 INFO HTTP GET /ping ip=127.0.0.1 user=None org=None
+2026-01-05 16:13:56,193 INFO HTTP GET /ping ip=127.0.0.1 user=None org=None
+2026-01-05 16:21:46,866 INFO HTTP GET /ping ip=127.0.0.1 user=None org=None
+2026-01-05 16:23:10,294 INFO HTTP GET /ping ip=127.0.0.1 user=None org=None
+2026-01-05 16:27:09,574 INFO HTTP GET /ping ip=127.0.0.1 user=None org=None
+2026-01-05 16:30:48,286 INFO HTTP GET /ping ip=127.0.0.1 user=None org=None
+2026-01-05 16:32:03,356 INFO HTTP GET /ping ip=127.0.0.1 user=None org=None
+2026-01-05 16:59:23,191 INFO HTTP GET /ping ip=127.0.0.1 user=None org=None
+2026-01-06 16:41:48,351 INFO HTTP POST /chat ip=160.8.26.8 user=00509000004fpIaAAI org=00D09000007j3AtEAI
+2026-01-06 16:41:52,718 INFO CHAT request request_id=a773abcf-fad3-401e-973d-552143c8b9e9 conv_id=4e1fee95-5eee-4cd9-b1b0-8386bbbc560c tenant=00D09000007j3AtEAI user_id=00509000004fpIaAAI message_len=35 history_len=0
+2026-01-06 16:43:39,825 INFO HTTP POST /chat ip=160.8.26.8 user=00509000004fpIaAAI org=00D09000007j3AtEAI
+2026-01-06 16:43:39,834 INFO CHAT request request_id=600e2881-739e-489e-9491-8a7ef239fa39 conv_id=4e1fee95-5eee-4cd9-b1b0-8386bbbc560c tenant=00D09000007j3AtEAI user_id=00509000004fpIaAAI message_len=38 history_len=2
+2026-01-06 16:45:24,344 INFO HTTP POST /chat ip=160.8.26.8 user=00509000004fpIaAAI org=00D09000007j3AtEAI
+2026-01-06 16:45:24,349 INFO CHAT request request_id=39d5ea37-5b33-4d18-9136-0a76a262d15d conv_id=4e1fee95-5eee-4cd9-b1b0-8386bbbc560c tenant=00D09000007j3AtEAI user_id=00509000004fpIaAAI message_len=59 history_len=4

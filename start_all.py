@@ -17,6 +17,8 @@ import tools_reporting  # noqa: F401  # registers reporting tools
 import tools_general  # noqa: F401  # registers general tools (ping, etc.)
 import tools_jira  # noqa: F401  # registers jira tools
 import tools_confluence  # noqa: F401  # registers confluence tools
+import tools_salesforce  # noqa: F401  # registers salesforce session tools
+import tools_admin  # noqa: F401  # registers admin tools (org urls)
 
 
 # Ports (keep in sync with existing setup)

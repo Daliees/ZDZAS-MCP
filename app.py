@@ -9,6 +9,8 @@ import tools_reporting  # noqa: F401  # registreert reporting-tools
 import tools_general  # noqa: F401  # registreert general-tools
 import tools_jira       # noqa: F401 # registreert jira-tools
 import tools_confluence # noqa: F401 # registreert confluence-tools
+import tools_salesforce  # noqa: F401 # registreert salesforce session tools
+import tools_admin  # noqa: F401 # registreert admin-tools (org urls)
 
 
 if __name__ == "__main__":

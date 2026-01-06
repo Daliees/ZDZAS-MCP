@@ -99,13 +99,14 @@ def create_router(logger, structured_log_path: str, feedback_log_path: str, conv
 			logger.exception("Unhandled error on /chat request_id=%s", request_id)
 			try:
 				with SessionLocal() as db:
-					upsert_entities(db, organisation_id=org_id, organisation_name=org_name, user_id=user_id, user_name=user_name)
+					upsert_entities(db, organisation_id=org_id, organisation_name=org_name, user_id=user_id, user_name=user_name, organisation_url=url)
 					error_log = RequestLog(
 						request_id=request_id,
 						user_id=user_id,
 						organisation_id=org_id,
 						conversation_id=conv_id,
 						tenant_id=tenant_id,
+						page_url=url,
 						message=req.message,
 						salesforce_org_id=org_id,
 						salesforce_user_id=user_id,
@@ -130,13 +131,14 @@ def create_router(logger, structured_log_path: str, feedback_log_path: str, conv
 		else:
 			try:
 				with SessionLocal() as db:
-					upsert_entities(db, organisation_id=org_id, organisation_name=org_name, user_id=user_id, user_name=user_name)
+					upsert_entities(db, organisation_id=org_id, organisation_name=org_name, user_id=user_id, user_name=user_name, organisation_url=url)
 					req_log = RequestLog(
 						request_id=request_id,
 						user_id=user_id,
 						organisation_id=org_id,
 						conversation_id=conv_id,
 						tenant_id=tenant_id,
+						page_url=url,
 						message=req.message,
 						reply=reply_text,
 						tokens_used=tokens_used,
