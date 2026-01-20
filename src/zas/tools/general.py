@@ -3,10 +3,10 @@
 
 from src.zas.core.helpers import mcp
 
-
 # =====================================================
 # TOOLS: ALGEMEEN — gebruikt door: General-Agent
 # =====================================================
+
 
 @mcp.tool
 def ping() -> str:

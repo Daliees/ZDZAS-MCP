@@ -2,10 +2,9 @@ import json
 import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
-from typing import Tuple
 
 
-def setup_logging(base_dir: Path) -> Tuple[logging.Logger, str]:
+def setup_logging(base_dir: Path) -> tuple[logging.Logger, str]:
 	log_dir = base_dir / "logs"
 	log_dir.mkdir(exist_ok=True)
 	log_file = log_dir / "chat_api.log"
@@ -14,7 +13,9 @@ def setup_logging(base_dir: Path) -> Tuple[logging.Logger, str]:
 	logger = logging.getLogger("zas_chat_api")
 	logger.setLevel(logging.DEBUG)
 	if not logger.handlers:
-		fh = RotatingFileHandler(str(log_file), maxBytes=2 * 1024 * 1024, backupCount=3, encoding="utf-8")
+		fh = RotatingFileHandler(
+			str(log_file), maxBytes=2 * 1024 * 1024, backupCount=3, encoding="utf-8"
+		)
 		fh.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
 		logger.addHandler(fh)
 	return logger, structured_log_path

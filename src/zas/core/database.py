@@ -1,8 +1,7 @@
 import os
 from datetime import datetime
-from typing import Optional
 
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Text, create_engine
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text, create_engine
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
 DB_URL = os.getenv("ZAS_DB_URL", "sqlite:///./zas.db")
@@ -86,7 +85,14 @@ def init_db() -> None:
 	Base.metadata.create_all(bind=engine)
 
 
-def set_salesforce_session(session, organisation_id: str, access_token: str, instance_url: str, refresh_token: Optional[str] = None, expires_at: Optional[datetime] = None) -> None:
+def set_salesforce_session(
+	session,
+	organisation_id: str,
+	access_token: str,
+	instance_url: str,
+	refresh_token: str | None = None,
+	expires_at: datetime | None = None,
+) -> None:
 	"""Persist or update a Salesforce session for an organisation."""
 	if not organisation_id:
 		raise ValueError("organisation_id is required")
@@ -113,7 +119,7 @@ def set_salesforce_session(session, organisation_id: str, access_token: str, ins
 	session.commit()
 
 
-def get_salesforce_session(session, organisation_id: str) -> Optional[SalesforceSession]:
+def get_salesforce_session(session, organisation_id: str) -> SalesforceSession | None:
 	"""Fetch the Salesforce session for an organisation if present."""
 	if not organisation_id:
 		return None
@@ -134,7 +140,15 @@ def list_salesforce_sessions(session):
 	]
 
 
-def set_salesforce_oauth_credentials(session, organisation_id: str, client_id: str, client_secret: str, refresh_token: str, instance_url: Optional[str] = None, expires_at: Optional[datetime] = None) -> None:
+def set_salesforce_oauth_credentials(
+	session,
+	organisation_id: str,
+	client_id: str,
+	client_secret: str,
+	refresh_token: str,
+	instance_url: str | None = None,
+	expires_at: datetime | None = None,
+) -> None:
 	"""Store OAuth client + refresh token for an organisation."""
 	if not organisation_id:
 		raise ValueError("organisation_id is required")
@@ -160,19 +174,32 @@ def set_salesforce_oauth_credentials(session, organisation_id: str, client_id: s
 	session.commit()
 
 
-def get_salesforce_oauth_credentials(session, organisation_id: str) -> Optional[SalesforceOAuthCredential]:
+def get_salesforce_oauth_credentials(
+	session, organisation_id: str
+) -> SalesforceOAuthCredential | None:
 	"""Fetch OAuth client + refresh token for an organisation."""
 	if not organisation_id:
 		return None
 	return session.get(SalesforceOAuthCredential, organisation_id)
 
 
-def upsert_entities(session, organisation_id: Optional[str], organisation_name: Optional[str], user_id: Optional[str], user_name: Optional[str], organisation_url: Optional[str] = None) -> None:
+def upsert_entities(
+	session,
+	organisation_id: str | None,
+	organisation_name: str | None,
+	user_id: str | None,
+	user_name: str | None,
+	organisation_url: str | None = None,
+) -> None:
 	"""Ensure organisation and user records exist and are updated."""
 	if organisation_id:
 		org = session.get(Organisation, organisation_id)
 		if not org:
-			org = Organisation(organisation_id=organisation_id, name=organisation_name or organisation_id, last_request_url=organisation_url)
+			org = Organisation(
+				organisation_id=organisation_id,
+				name=organisation_name or organisation_id,
+				last_request_url=organisation_url,
+			)
 			session.add(org)
 		elif organisation_name and org.name != organisation_name:
 			org.name = organisation_name

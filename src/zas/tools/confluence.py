@@ -1,9 +1,11 @@
 # tools_confluence.py - tools voor Confluence
 
-from src.zas.core.helpers import mcp, _conf_get
 import os
 import traceback
+
 import requests
+
+from src.zas.core.helpers import _conf_get, mcp
 
 # ---- CONFLUENCE ENV ----
 CONF_BASE_URL = os.getenv("CONFLUENCE_BASE_URL")
@@ -71,6 +73,7 @@ def confluence_search_pages(query: str, limit: int = 10):
 		}
 	except Exception as e:
 		return {"ok": False, "error": str(e), "trace": traceback.format_exc()}
+
 
 # ---------- CONFLUENCE: PAGE DETAILS ----------
 @mcp.tool

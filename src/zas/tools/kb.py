@@ -1,20 +1,21 @@
 # tools_kb.py - tools voor kennisbank
 
 
-from src.zas.core.helpers import mcp, _get, _post, _paginate_search
-import os
 import traceback
+
+from src.zas.core.helpers import _get, _paginate_search, _post, mcp
 
 # =====================================================
 # TOOLS: KENNISBANK — gebruikt door: KB-Agent
 # =====================================================
 
+
 @mcp.tool
 def kb_generate_draft(query: str, limit: int = 20):
 	"""[KB-Agent]
 
-Genereert concept kennisbank-artikel op basis van opgeloste tickets.
-	(Deze tool bundelt data; de LLM-agent maakt de uiteindelijke tekst.)
+	Genereert concept kennisbank-artikel op basis van opgeloste tickets.
+		(Deze tool bundelt data; de LLM-agent maakt de uiteindelijke tekst.)
 	"""
 	try:
 		tickets = _paginate_search(query + " status:solved", limit=limit)
@@ -27,12 +28,14 @@ Genereert concept kennisbank-artikel op basis van opgeloste tickets.
 				comments = [c["body"] for c in cdata if c.get("public", False)]
 			except Exception:
 				pass
-			bundle.append({
-				"id": tid,
-				"subject": t.get("subject"),
-				"summary": (comments[0][:200] if comments else ""),
-				"comments": comments,
-			})
+			bundle.append(
+				{
+					"id": tid,
+					"subject": t.get("subject"),
+					"summary": (comments[0][:200] if comments else ""),
+					"comments": comments,
+				}
+			)
 
 		combined_text = "\n\n".join(
 			[f"### Ticket {b['id']}: {b['subject']}\n{b['summary']}" for b in bundle]
@@ -47,32 +50,25 @@ Genereert concept kennisbank-artikel op basis van opgeloste tickets.
 	except Exception as e:
 		return {"error": str(e), "trace": traceback.format_exc()}
 
+
 # ---------- END-TO-END ANALYSE ----------
 
 
 @mcp.tool
-def kb_search_articles(
-	query: str,
-	limit: int = 20,
-	label_names: str = "",
-	locale: str = ""
-):
+def kb_search_articles(query: str, limit: int = 20, label_names: str = "", locale: str = ""):
 	"""[KB-Agent]
 
-Zoek in Zendesk Help Center-artikelen (kennisbank).
+	Zoek in Zendesk Help Center-artikelen (kennisbank).
 
-	- query: vrije zoektekst (titel/body/labels)
-	- limit: max aantal resultaten (max 100)
-	- label_names: optioneel, komma-gescheiden labels (bv. "2fa,login")
-	- locale: optioneel filter op locale (bv. "nl" / "nl-nl"); wordt client-side gefilterd
+		- query: vrije zoektekst (titel/body/labels)
+		- limit: max aantal resultaten (max 100)
+		- label_names: optioneel, komma-gescheiden labels (bv. "2fa,login")
+		- locale: optioneel filter op locale (bv. "nl" / "nl-nl"); wordt client-side gefilterd
 	"""
 	try:
 		q = (query or "").strip()
 		if not q and not label_names:
-			return {
-				"ok": False,
-				"error": "Geef minimaal een query of label_names op."
-			}
+			return {"ok": False, "error": "Geef minimaal een query of label_names op."}
 
 		per_page = min(100, max(1, limit))
 		params = {
@@ -115,6 +111,7 @@ Zoek in Zendesk Help Center-artikelen (kennisbank).
 	except Exception as e:
 		return {"ok": False, "error": str(e), "trace": traceback.format_exc()}
 
+
 # ---------- KENNISBANK: CREATE DRAFT ----------
 
 
@@ -150,7 +147,11 @@ def kb_create_draft_article(
 				),
 			}
 
-		sid_source = section_id if section_id not in (None, "", 0) else os.getenv("ZENDESK_KB_CONCEPT_SECTION_ID")
+		sid_source = (
+			section_id
+			if section_id not in (None, "", 0)
+			else os.getenv("ZENDESK_KB_CONCEPT_SECTION_ID")
+		)
 		if not sid_source:
 			return {
 				"ok": False,
@@ -197,6 +198,8 @@ def kb_create_draft_article(
 
 	except Exception as e:
 		import traceback
+
 		return {"ok": False, "error": str(e), "trace": traceback.format_exc()}
+
 
 # ---------- EXPORT ----------

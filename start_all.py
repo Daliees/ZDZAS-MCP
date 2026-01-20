@@ -3,6 +3,7 @@ import signal
 import sys
 import time
 from pathlib import Path
+
 import uvicorn
 
 # Ensure local modules are importable in child processes
@@ -10,16 +11,15 @@ BASE_DIR = Path(__file__).resolve().parent
 if str(BASE_DIR) not in sys.path:
 	sys.path.insert(0, str(BASE_DIR))
 
-from src.zas.core import helpers
-import src.zas.tools.ticket  # noqa: F401
-import src.zas.tools.kb  # noqa: F401
-import src.zas.tools.reporting  # noqa: F401
+import src.zas.tools.admin  # noqa: F401
+import src.zas.tools.confluence  # noqa: F401
 import src.zas.tools.general  # noqa: F401
 import src.zas.tools.jira  # noqa: F401
-import src.zas.tools.confluence  # noqa: F401
+import src.zas.tools.kb  # noqa: F401
+import src.zas.tools.reporting  # noqa: F401
 import src.zas.tools.salesforce  # noqa: F401
-import src.zas.tools.admin  # noqa: F401
-
+import src.zas.tools.ticket  # noqa: F401
+from src.zas.core import helpers
 
 # Ports (keep in sync with existing setup)
 MCP_HOST = "127.0.0.1"
@@ -32,11 +32,7 @@ def run_mcp() -> None:
 	"""Start the MCP server (same as app.py)."""
 	try:
 		helpers.mcp.run(
-			transport="http",
-			host=MCP_HOST,
-			port=MCP_PORT,
-			path="/mcp",
-			stateless_http=True
+			transport="http", host=MCP_HOST, port=MCP_PORT, path="/mcp", stateless_http=True
 		)
 	except KeyboardInterrupt:
 		pass

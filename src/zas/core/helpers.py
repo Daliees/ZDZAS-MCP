@@ -1,11 +1,8 @@
 # core.py - centrale config, env en helpers voor MCP
 import os
-import csv
 import time
-import math
-import traceback
+
 import requests
-import pandas as pd
 from dotenv import load_dotenv
 from fastmcp import FastMCP
 
@@ -47,7 +44,8 @@ BASE = f"https://{ZD_SUB}.zendesk.com/api/v2"
 # 3) MCP server
 mcp = FastMCP(
 	name="zendesk_mcp_http",
-	)
+)
+
 
 # ---------- helpers ----------
 def _get(url_path, params=None, timeout=20):
@@ -55,6 +53,7 @@ def _get(url_path, params=None, timeout=20):
 	r = requests.get(url, params=params or {}, auth=AUTH, timeout=timeout)
 	r.raise_for_status()
 	return r.json()
+
 
 def _put(url_path, payload, timeout=20):
 	"""
@@ -67,6 +66,7 @@ def _put(url_path, payload, timeout=20):
 	r.raise_for_status()
 	return r.json()
 
+
 def _post(url_path, payload, timeout=20):
 	"""
 	Algemene helper voor POST-requests naar de Zendesk API.
@@ -75,6 +75,7 @@ def _post(url_path, payload, timeout=20):
 	r = requests.post(url, json=payload, auth=AUTH, timeout=timeout)
 	r.raise_for_status()
 	return r.json()
+
 
 def _paginate_search(query: str, limit: int):
 	"""
@@ -93,6 +94,7 @@ def _paginate_search(query: str, limit: int):
 		# kleine pauze i.v.m. rate limits
 		time.sleep(0.15)
 	return results[:limit]
+
 
 # ---------- JIRA HELPERS ----------
 def _jira_get(path: str, params=None, timeout: int = 20):

@@ -2,19 +2,18 @@
 
 import os
 from datetime import datetime, timedelta
-from typing import Optional
 
 import requests
-
-from src.zas.core.helpers import mcp
 from db import (
 	SessionLocal,
-	set_salesforce_session,
+	get_salesforce_oauth_credentials,
 	get_salesforce_session,
 	list_salesforce_sessions,
 	set_salesforce_oauth_credentials,
-	get_salesforce_oauth_credentials,
+	set_salesforce_session,
 )
+
+from src.zas.core.helpers import mcp
 
 DEFAULT_LOGIN_URL = os.getenv("SALESFORCE_LOGIN_URL", "https://login.salesforce.com")
 API_VERSION = os.getenv("SALESFORCE_API_VERSION", "v61.0")
@@ -26,8 +25,8 @@ def salesforce_session_store(
 	organisation_id: str,
 	access_token: str,
 	instance_url: str,
-	refresh_token: Optional[str] = None,
-	expires_at: Optional[str] = None,
+	refresh_token: str | None = None,
+	expires_at: str | None = None,
 ):
 	"""Bewaar of update een Salesforce sessie voor een organisatie.
 
@@ -81,8 +80,8 @@ def salesforce_oauth_set_credentials(
 	client_id: str,
 	client_secret: str,
 	refresh_token: str,
-	instance_url: Optional[str] = None,
-	expires_at: Optional[str] = None,
+	instance_url: str | None = None,
+	expires_at: str | None = None,
 ):
 	"""Sla OAuth client + refresh token op voor een organisatie."""
 	if READ_ONLY:
@@ -114,18 +113,18 @@ def salesforce_oauth_set_credentials(
 def salesforce_oauth_authorize_url(
 	client_id: str,
 	redirect_uri: str,
-	state: Optional[str] = None,
-	login_url: Optional[str] = None,
+	state: str | None = None,
+	login_url: str | None = None,
 ):
 	"""Genereer de Salesforce OAuth authorize URL (gebruiker moet deze in browser openen)."""
 	if READ_ONLY:
 		return {"ok": False, "error": "salesforce tools are read-only"}
 	base = (login_url or DEFAULT_LOGIN_URL).rstrip("/")
 	params = [
-		(f"response_type", "code"),
-		(f"client_id", client_id),
-		(f"redirect_uri", redirect_uri),
-		(f"scope", "refresh_token offline_access api"),
+		("response_type", "code"),
+		("client_id", client_id),
+		("redirect_uri", redirect_uri),
+		("scope", "refresh_token offline_access api"),
 	]
 	if state:
 		params.append(("state", state))
@@ -140,7 +139,7 @@ def salesforce_oauth_exchange_code(
 	client_secret: str,
 	code: str,
 	redirect_uri: str,
-	login_url: Optional[str] = None,
+	login_url: str | None = None,
 ):
 	"""Wissel een auth code om voor refresh/access tokens en sla ze op."""
 	if READ_ONLY:
@@ -166,7 +165,10 @@ def salesforce_oauth_exchange_code(
 	instance_url = payload.get("instance_url")
 	expires_in = payload.get("expires_in")
 	if not refresh_token or not access_token or not instance_url:
-		return {"ok": False, "error": "token response missing refresh_token/access_token/instance_url"}
+		return {
+			"ok": False,
+			"error": "token response missing refresh_token/access_token/instance_url",
+		}
 
 	expires_at = datetime.utcnow() + timedelta(seconds=int(expires_in)) if expires_in else None
 
@@ -188,7 +190,11 @@ def salesforce_oauth_exchange_code(
 				instance_url=instance_url,
 				expires_at=expires_at,
 			)
-			return {"ok": True, "instance_url": instance_url, "expires_at": expires_at.isoformat() if expires_at else None}
+			return {
+				"ok": True,
+				"instance_url": instance_url,
+				"expires_at": expires_at.isoformat() if expires_at else None,
+			}
 		except Exception as e:
 			return {"ok": False, "error": str(e)}
 
@@ -295,6 +301,11 @@ def salesforce_query(organisation_id: str, soql: str):
 		resp.raise_for_status()
 		payload = resp.json()
 		# Return only read-only data fields
-		return {"ok": True, "totalSize": payload.get("totalSize"), "done": payload.get("done"), "records": payload.get("records", [])}
+		return {
+			"ok": True,
+			"totalSize": payload.get("totalSize"),
+			"done": payload.get("done"),
+			"records": payload.get("records", []),
+		}
 	except Exception as e:
 		return {"ok": False, "error": f"sf query failed: {e}"}

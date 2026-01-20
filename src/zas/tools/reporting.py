@@ -1,25 +1,37 @@
 # tools_reporting.py - tools voor reporting & export
 
 
-from src.zas.core.helpers import mcp, _paginate_search
 import csv
 import os
 import traceback
 
+from src.zas.core.helpers import _paginate_search, mcp
 
 # =====================================================
 # TOOLS: REPORTING & EXPORT — gebruikt door: Reporting-Agent
 # =====================================================
 
+
 @mcp.tool
 def tickets_export_csv(query: str, path: str = "tickets_export.csv", limit: int = 1000):
 	"""[KB-Agent]
 
-Exporteer gevonden tickets naar CSV (id, subject, status, priority, assignee_id, requester_id, organization_id, tags, created_at, updated_at).
+	Exporteer gevonden tickets naar CSV (id, subject, status, priority, assignee_id, requester_id, organization_id, tags, created_at, updated_at).
 	"""
 	try:
 		rows = _paginate_search(query=query, limit=limit)
-		fields = ["id","subject","status","priority","assignee_id","requester_id","organization_id","tags","created_at","updated_at"]
+		fields = [
+			"id",
+			"subject",
+			"status",
+			"priority",
+			"assignee_id",
+			"requester_id",
+			"organization_id",
+			"tags",
+			"created_at",
+			"updated_at",
+		]
 		with open(path, "w", newline="", encoding="utf-8") as f:
 			w = csv.DictWriter(f, fieldnames=fields)
 			w.writeheader()
@@ -28,6 +40,7 @@ Exporteer gevonden tickets naar CSV (id, subject, status, priority, assignee_id,
 		return {"ok": True, "path": os.path.abspath(path), "count": len(rows)}
 	except Exception as e:
 		return {"error": str(e), "trace": traceback.format_exc()}
+
 
 # ---------- SERVER START ----------
 if __name__ == "__main__":

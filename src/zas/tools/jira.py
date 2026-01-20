@@ -1,14 +1,17 @@
 # tools_jira.py - tools voor Jira
 
-from src.zas.core.helpers import mcp, _jira_get
 import os
 import traceback
+
 import requests
+
+from src.zas.core.helpers import _jira_get, mcp
 
 # ---- JIRA ENV ----
 JIRA_BASE_URL = os.getenv("JIRA_BASE_URL")
 JIRA_EMAIL = os.getenv("JIRA_EMAIL")
 JIRA_API_TOKEN = os.getenv("JIRA_API_TOKEN")
+
 
 @mcp.tool
 def jira_get_issue(issue_key: str, max_comments: int = 5):

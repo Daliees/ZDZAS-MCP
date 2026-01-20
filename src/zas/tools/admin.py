@@ -1,12 +1,11 @@
 # tools_admin.py - Admin utilities for org URLs and request pages
 
-from typing import Optional
 from datetime import datetime
 
+from db import Organisation, RequestLog, SessionLocal
 from sqlalchemy import desc
 
 from src.zas.core.helpers import mcp
-from db import SessionLocal, Organisation, RequestLog
 
 
 @mcp.tool
@@ -43,7 +42,11 @@ def org_recent_pages(organisation_id: str, limit: int = 20):
 		)
 		return [
 			{
-				"created_at": (r.created_at.isoformat() if isinstance(r.created_at, datetime) and r.created_at else None),
+				"created_at": (
+					r.created_at.isoformat()
+					if isinstance(r.created_at, datetime) and r.created_at
+					else None
+				),
 				"page_url": r.page_url,
 				"conversation_id": r.conversation_id,
 			}

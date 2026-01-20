@@ -1,9 +1,7 @@
-from typing import Optional
+import base64
 
 from fastapi import Request
 from fastapi.responses import JSONResponse
-
-import base64
 
 
 def _extract_client_ip(request: Request) -> str:
@@ -13,7 +11,7 @@ def _extract_client_ip(request: Request) -> str:
 	return request.client.host if request.client else "unknown"
 
 
-def _is_authorized(user_id: Optional[str], org_id: Optional[str]) -> bool:
+def _is_authorized(user_id: str | None, org_id: str | None) -> bool:
 	# check if user_id and org_id are set.
 	if not user_id or not org_id:
 		return False
@@ -38,9 +36,11 @@ def setup_middleware(app, logger):
 		)
 
 		if not _is_authorized(user_id, org_id):
-			if(request.url.path == '/gpt' or request.url.path == '/ping'):
+			if request.url.path == "/gpt" or request.url.path == "/ping":
 				auth = request.headers.get("Authorization")
-				b64_bytes = base64.b64encode("asFWdSA4scvgqHE0HkTM*BxGJ:FRtnFNmEYTDQACYzjpXdQsTGng0aSUzr9v")
+				b64_bytes = base64.b64encode(
+					"asFWdSA4scvgqHE0HkTM*BxGJ:FRtnFNmEYTDQACYzjpXdQsTGng0aSUzr9v"
+				)
 				b64_str = b64_bytes.decode("ascii")
 				if not auth or auth != f"Basic {b64_str}":
 					return JSONResponse({"authorized": False}, status_code=403)

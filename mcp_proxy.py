@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import os
 import json
 import logging
+import os
 
 import requests
 from fastapi import FastAPI, Request, Response
@@ -141,9 +141,7 @@ async def mcp_proxy(request: Request) -> Response:
 				else "proxy-upstream-http-error",
 				"error": {
 					"code": -32003,
-					"message": (
-						f"Upstream MCP HTTP error {upstream_resp.status_code}"
-					),
+					"message": (f"Upstream MCP HTTP error {upstream_resp.status_code}"),
 					"data": upstream_json,
 				},
 			}

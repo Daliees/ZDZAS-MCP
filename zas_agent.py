@@ -1,24 +1,22 @@
 from __future__ import annotations
 
-from typing import List, Dict, Any, Optional
-
+import json
 import os
 import traceback
+from typing import Any
 
-from pydantic import BaseModel
-
+import requests
 from agents import (
 	Agent,
 	ModelSettings,
-	TResponseInputItem,
-	Runner,
 	RunConfig,
-	trace,
+	Runner,
+	TResponseInputItem,
 	function_tool,
+	trace,
 )
+from pydantic import BaseModel
 
-import requests
-import json
 # ---------------------------------------------------------------------------
 # MCP HTTP client (naar FastMCP server in app.py)
 # ---------------------------------------------------------------------------
@@ -60,7 +58,7 @@ def _parse_mcp_response(tool_name: str, resp: requests.Response) -> Any:
 		for line in body.splitlines():
 			line = line.strip()
 			if line.startswith("data:"):
-				data_line = line[len("data:"):].strip()
+				data_line = line[len("data:") :].strip()
 		if not data_line:
 			raise RuntimeError(f"MCP SSE response from {tool_name} had no data: line")
 		try:
@@ -77,7 +75,7 @@ def _parse_mcp_response(tool_name: str, resp: requests.Response) -> Any:
 	)
 
 
-def _mcp_call(tool_name: str, arguments: Dict[str, Any]) -> Any:
+def _mcp_call(tool_name: str, arguments: dict[str, Any]) -> Any:
 	"""
 	Roep een FastMCP tool aan via HTTP JSON-RPC.
 	Geeft zoveel mogelijk direct de payload van de tool terug.
@@ -141,7 +139,7 @@ def _mcp_call(tool_name: str, arguments: Dict[str, Any]) -> Any:
 	return result
 
 
-def _tools_authorized(user_id: Optional[str], org_id: Optional[str]) -> bool:
+def _tools_authorized(user_id: str | None, org_id: str | None) -> bool:
 	"""Lightweight auth stub based on a deterministic bitwise check."""
 	# seed = f"{user_id or ''}|{org_id or ''}"
 	# return (hash(seed) & 1) == 0
@@ -153,6 +151,7 @@ def _tools_authorized(user_id: Optional[str], org_id: Optional[str]) -> bool:
 # ---------------------------------------------------------------------------
 
 # ===== Tickets =====
+
 
 @function_tool
 def tickets_search(query: str, limit: int = 50) -> Any:
@@ -235,6 +234,7 @@ def tickets_analyze(
 
 # ===== Kennisbank =====
 
+
 @function_tool
 def kb_generate_draft(query: str, limit: int = 20) -> Any:
 	"""Genereer een concept-kennisbankartikel op basis van opgeloste tickets."""
@@ -262,12 +262,12 @@ def kb_search_articles(
 
 @function_tool
 def kb_create_draft_article(
-	section_id: Optional[int] = None,
+	section_id: int | None = None,
 	title: str = "",
 	body: str = "",
 	locale: str = "nl",
-	permission_group_id: Optional[int] = None,
-	user_segment_id: Optional[int] = None,
+	permission_group_id: int | None = None,
+	user_segment_id: int | None = None,
 ) -> Any:
 	"""Maak een concept-kennisbankartikel aan."""
 	return _mcp_call(
@@ -284,6 +284,7 @@ def kb_create_draft_article(
 
 
 # ===== Reporting =====
+
 
 @function_tool
 def tickets_export_csv(
@@ -304,6 +305,7 @@ def tickets_export_csv(
 
 # ===== General =====
 
+
 @function_tool
 def ping() -> str:
 	"""Controleer of de FastMCP-server bereikbaar is."""
@@ -313,6 +315,7 @@ def ping() -> str:
 
 
 # ===== Jira =====
+
 
 @function_tool
 def jira_get_issue(issue_key: str, max_comments: int = 5) -> Any:
@@ -324,6 +327,7 @@ def jira_get_issue(issue_key: str, max_comments: int = 5) -> Any:
 
 
 # ===== Confluence =====
+
 
 @function_tool
 def confluence_search_pages(query: str, limit: int = 10) -> Any:
@@ -451,18 +455,19 @@ Gebruik geen Markdown-syntax zoals **vet**, _cursief_ of ![afbeelding](url).
 # Workflow API (optioneel)
 # ---------------------------------------------------------------------------
 
+
 class WorkflowInput(BaseModel):
 	input_as_text: str
 
 
 class WorkflowConfig(BaseModel):
-	steps: List[Dict[str, Any]] = []
+	steps: list[dict[str, Any]] = []
 
 
 async def run_zas_workflow(
-	workflow: Dict[str, Any],
-	conversation_history: Optional[List[TResponseInputItem]] = None,
-) -> Dict[str, Any]:
+	workflow: dict[str, Any],
+	conversation_history: list[TResponseInputItem] | None = None,
+) -> dict[str, Any]:
 	if conversation_history is None:
 		conversation_history = []
 
@@ -493,9 +498,7 @@ async def run_zas_workflow(
 		),
 	)
 
-	conversation_history.extend(
-		[item.to_input_item() for item in zas_result_temp.new_items]
-	)
+	conversation_history.extend([item.to_input_item() for item in zas_result_temp.new_items])
 
 	return {
 		"output_text": zas_result_temp.final_output_as(str),
@@ -506,14 +509,15 @@ async def run_zas_workflow(
 # Chat-turn API – wordt aangeroepen door chat_api.py
 # ---------------------------------------------------------------------------
 
+
 async def run_zas_chat_turn(
 	message: str,
-	history: Optional[List[TResponseInputItem]],
-	tenant_id: Optional[str] = None,
-	url: Optional[str] = None,
-	user_id: Optional[str] = None,
-	org_id: Optional[str] = None,
-) -> tuple[str, List[TResponseInputItem], int]:
+	history: list[TResponseInputItem] | None,
+	tenant_id: str | None = None,
+	url: str | None = None,
+	user_id: str | None = None,
+	org_id: str | None = None,
+) -> tuple[str, list[TResponseInputItem], int]:
 	if history is None:
 		history = []
 
@@ -551,7 +555,7 @@ async def run_zas_chat_turn(
 			),
 		)
 
-	updated_history: List[TResponseInputItem] = [
+	updated_history: list[TResponseInputItem] = [
 		*history,
 		user_item,
 		*[item.to_input_item() for item in zas_result_temp.new_items],

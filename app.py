@@ -1,17 +1,15 @@
-
 # app.py - entrypoint for the MCP server
 # Loads core and all tool modules and starts the HTTP server.
 
-from src.zas.core import helpers
-import src.zas.tools.ticket  # noqa: F401  # registers ticket tools
-import src.zas.tools.kb  # noqa: F401  # registers kb tools
-import src.zas.tools.reporting  # noqa: F401  # registers reporting tools
+import src.zas.tools.admin  # noqa: F401  # registers admin tools
+import src.zas.tools.confluence  # noqa: F401  # registers confluence tools
 import src.zas.tools.general  # noqa: F401  # registers general tools
 import src.zas.tools.jira  # noqa: F401  # registers jira tools
-import src.zas.tools.confluence  # noqa: F401  # registers confluence tools
+import src.zas.tools.kb  # noqa: F401  # registers kb tools
+import src.zas.tools.reporting  # noqa: F401  # registers reporting tools
 import src.zas.tools.salesforce  # noqa: F401  # registers salesforce session tools
-import src.zas.tools.admin  # noqa: F401  # registers admin tools
-
+import src.zas.tools.ticket  # noqa: F401  # registers ticket tools
+from src.zas.core import helpers
 
 if __name__ == "__main__":
 	try:
@@ -24,4 +22,3 @@ if __name__ == "__main__":
 		)
 	except KeyboardInterrupt:
 		print("MCP server gracefully shut down.")
-

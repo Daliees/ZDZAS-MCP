@@ -3,17 +3,16 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Dict, List
 
+from agents import TResponseInputItem
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from agents import TResponseInputItem
-from src.zas.core.database import init_db
 from src.zas.api.logging_utils import setup_logging
 from src.zas.api.middleware import setup_middleware
 from src.zas.api.routes import create_router
+from src.zas.core.database import init_db
 
 # Load .env file
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -30,11 +29,10 @@ init_db()
 # In-memory conversatiegeschiedenis
 # ---------------------------------------------------------------------------
 
-conversation_histories: Dict[str, List[TResponseInputItem]] = {}
+conversation_histories: dict[str, list[TResponseInputItem]] = {}
 
 # Pad voor feedback-log (JSON Lines)
 FEEDBACK_LOG_PATH = os.getenv("ZAS_FEEDBACK_LOG", "zas_feedback_log.jsonl")
-
 
 
 # ---------------------------------------------------------------------------
@@ -45,7 +43,7 @@ app = FastAPI(title="ZAS Chat API")
 
 app.add_middleware(
 	CORSMiddleware,
-	allow_origins=["*"],   # voor productie strakker maken
+	allow_origins=["*"],  # voor productie strakker maken
 	allow_credentials=True,
 	allow_methods=["*"],
 	allow_headers=["*"],

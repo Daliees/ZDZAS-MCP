@@ -1,22 +1,22 @@
 from datetime import datetime
-from typing import Optional, Literal
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
 
 class SalesforceContext(BaseModel):
-	orgId: Optional[str] = None
-	userId: Optional[str] = None
-	userName: Optional[str] = None
-	userEmail: Optional[str] = None
+	orgId: str | None = None
+	userId: str | None = None
+	userName: str | None = None
+	userEmail: str | None = None
 
 
 class ChatRequest(BaseModel):
 	message: str = Field(..., description="User message")
-	conversationId: Optional[str] = Field(None, description="Conversation id om history te bewaren")
-	tenantId: Optional[str] = None
-	url: Optional[str] = None
-	salesforceContext: Optional[SalesforceContext] = None
+	conversationId: str | None = Field(None, description="Conversation id om history te bewaren")
+	tenantId: str | None = None
+	url: str | None = None
+	salesforceContext: SalesforceContext | None = None
 
 
 class ChatResponse(BaseModel):
@@ -26,15 +26,15 @@ class ChatResponse(BaseModel):
 
 class FeedbackItem(BaseModel):
 	conversationId: str
-	sessionId: Optional[str] = None
-	userMessage: Optional[str] = None
+	sessionId: str | None = None
+	userMessage: str | None = None
 	agentReply: str
 	rating: Literal["good", "neutral", "bad"]
 	createdAt: datetime
 
 
 class ResetRequest(BaseModel):
-	conversationId: Optional[str] = None
+	conversationId: str | None = None
 
 
 def estimate_tokens(message: str, reply: str) -> int:
