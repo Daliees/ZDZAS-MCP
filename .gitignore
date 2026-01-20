@@ -41,3 +41,6 @@ ngrok.log
 Thumbs.db
 
 /logs
+
+
+node_modules/

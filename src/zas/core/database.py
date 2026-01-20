@@ -1,7 +1,9 @@
 import os
 from datetime import datetime
+from decimal import Decimal
+from uuid import uuid4
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text, create_engine
+from sqlalchemy import Boolean, Column, Date, DateTime, Float, ForeignKey, Integer, Numeric, String, Text, create_engine
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
 DB_URL = os.getenv("ZAS_DB_URL", "sqlite:///./zas.db")
@@ -76,6 +78,84 @@ class SalesforceOAuthCredential(Base):
 	instance_url = Column(String, nullable=True)
 	issued_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 	expires_at = Column(DateTime, nullable=True)
+
+	organisation = relationship("Organisation")
+
+
+class ConversationLog(Base):
+	"""EU AI Act compliant conversation logging"""
+	__tablename__ = "conversation_logs"
+
+	id = Column(String, primary_key=True, default=lambda: str(uuid4()))
+	organisation_id = Column(String, ForeignKey("organisations.organisation_id"), nullable=True)
+	user_id = Column(String, ForeignKey("users.user_id"), nullable=True)
+	session_id = Column(String, nullable=False, index=True)
+	timestamp = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+	input_prompt = Column(Text, nullable=False)  # Encrypted in production
+	output_response = Column(Text, nullable=False)  # Encrypted in production
+	tool_calls = Column(Text, nullable=True)  # JSON string of tools invoked
+	input_tokens = Column(Integer, default=0)
+	output_tokens = Column(Integer, default=0)
+	total_tokens = Column(Integer, default=0)
+	model_used = Column(String, default="gpt-4.1-mini")
+	latency_ms = Column(Integer, nullable=True)
+	flagged_content = Column(Boolean, default=False)
+	flagged_reason = Column(String, nullable=True)
+	ip_address = Column(String, nullable=True)  # Anonymized after retention period
+	user_agent = Column(String, nullable=True)
+
+	organisation = relationship("Organisation")
+	user = relationship("User")
+
+
+class TokenUsage(Base):
+	"""Aggregated token usage for billing and monitoring"""
+	__tablename__ = "token_usage"
+
+	id = Column(Integer, primary_key=True, autoincrement=True)
+	organisation_id = Column(String, ForeignKey("organisations.organisation_id"), nullable=False)
+	user_id = Column(String, ForeignKey("users.user_id"), nullable=True)
+	date = Column(Date, nullable=False, index=True)
+	model = Column(String, nullable=False)
+	input_tokens = Column(Integer, default=0)
+	output_tokens = Column(Integer, default=0)
+	total_tokens = Column(Integer, default=0)
+	total_requests = Column(Integer, default=0)
+	average_latency_ms = Column(Float, nullable=True)
+	cost_estimate = Column(Numeric(10, 4), default=Decimal("0.0000"))
+
+	organisation = relationship("Organisation")
+	user = relationship("User")
+
+
+class AuditLog(Base):
+	"""System-level audit trail"""
+	__tablename__ = "audit_logs"
+
+	id = Column(String, primary_key=True, default=lambda: str(uuid4()))
+	timestamp = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+	user_id = Column(String, ForeignKey("users.user_id"), nullable=True)
+	action = Column(String, nullable=False)  # CRUD operation
+	resource_type = Column(String, nullable=False)  # e.g., "conversation", "user", "organization"
+	resource_id = Column(String, nullable=True)
+	old_value = Column(Text, nullable=True)  # JSON
+	new_value = Column(Text, nullable=True)  # JSON
+	ip_address = Column(String, nullable=True)
+	success = Column(Boolean, default=True)
+	error_message = Column(Text, nullable=True)
+
+	user = relationship("User")
+
+
+class DataRetentionPolicy(Base):
+	"""Configurable data retention per organization"""
+	__tablename__ = "data_retention_policies"
+
+	organisation_id = Column(String, ForeignKey("organisations.organisation_id"), primary_key=True)
+	conversation_logs_days = Column(Integer, default=90)  # EU AI Act minimum
+	token_usage_days = Column(Integer, default=365)
+	audit_logs_days = Column(Integer, default=730)  # 2 years
+	anonymize_after_days = Column(Integer, default=30)
 
 	organisation = relationship("Organisation")
 

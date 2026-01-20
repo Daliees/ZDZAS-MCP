@@ -1,11 +1,13 @@
 import json
 import os
+import time
 import uuid
 from datetime import datetime
 
 from agents import TResponseInputItem
+from fastapi import APIRouter, Body, Header, HTTPException, Request
+from src.zas.core.conversation_logger import log_conversation_async
 from src.zas.core.database import RequestLog, SessionLocal, upsert_entities
-from fastapi import APIRouter, Body, Header, HTTPException
 
 from zas_agent import run_zas_chat_turn
 
@@ -27,6 +29,7 @@ def create_router(
 
 	@router.post("/chat", response_model=ChatResponse)
 	async def chat(
+		request: Request,
 		req: ChatRequest,
 		x_zas_tenant_id: str | None = Header(None),
 		x_zas_url: str | None = Header(None),
@@ -35,6 +38,7 @@ def create_router(
 		x_salesforce_user_id: str | None = Header(None, alias="X-Salesforce-User-Id"),
 	):
 		request_id = str(uuid.uuid4())
+		start_time = time.time()
 
 		tenant_id = req.tenantId or x_zas_tenant_id
 		url = req.url or x_zas_url
@@ -48,6 +52,10 @@ def create_router(
 		user_name = req.salesforceContext.userName if req.salesforceContext else None
 		org_name = None
 		history = conversation_histories.get(conv_id, [])
+		
+		# Extract client info for logging
+		client_ip = request.client.host if request.client else None
+		user_agent = request.headers.get("user-agent")
 
 		logger.info(
 			"CHAT request request_id=%s conv_id=%s tenant=%s user_id=%s message_len=%d history_len=%d",
@@ -159,6 +167,9 @@ def create_router(
 			raise HTTPException(status_code=500, detail="Internal ZAS error") from e
 
 		else:
+			# Calculate latency
+			latency_ms = int((time.time() - start_time) * 1000)
+			
 			try:
 				with SessionLocal() as db:
 					upsert_entities(
@@ -187,6 +198,24 @@ def create_router(
 					db.commit()
 			except Exception:
 				logger.exception("DB logging failed for request_id=%s", request_id)
+			
+			# Log conversation for EU AI Act compliance
+			try:
+				await log_conversation_async(
+					session_id=conv_id,
+					organisation_id=org_id,
+					user_id=user_id,
+					input_prompt=req.message,
+					output_response=reply_text,
+					tool_calls=None,  # TODO: Extract from agent response
+					model_used="gpt-4.1-mini",
+					latency_ms=latency_ms,
+					ip_address=client_ip,
+					user_agent=user_agent,
+					actual_tokens={"total": tokens_used} if tokens_used else None,
+				)
+			except Exception:
+				logger.exception("Conversation logging failed for request_id=%s", request_id)
 
 			write_jsonl(
 				structured_log_path,
