@@ -6,10 +6,11 @@ import requests
 from dotenv import load_dotenv
 from fastmcp import FastMCP
 
-# 1) Laad .env uit dezelfde map als dit bestand (optioneel)
+# 1) Load .env from project root (3 levels up from this file)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ENV_PATH = os.path.join(BASE_DIR, ".env")
-load_dotenv(ENV_PATH)  # als .env ontbreekt is dat geen fout; dan worden OS env-vars gebruikt
+PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", "..", ".."))
+ENV_PATH = os.path.join(PROJECT_ROOT, ".env")
+load_dotenv(ENV_PATH)  # Load from project root
 
 # 2) Lees env en valideer verplichte Zendesk-variabelen
 # ---- ZENDESK ENV ----

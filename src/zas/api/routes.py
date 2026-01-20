@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 
 from agents import TResponseInputItem
-from db import RequestLog, SessionLocal, upsert_entities
+from src.zas.core.database import RequestLog, SessionLocal, upsert_entities
 from fastapi import APIRouter, Body, Header, HTTPException
 
 from zas_agent import run_zas_chat_turn

@@ -12,6 +12,10 @@ __pycache__/
 *.pyo
 *.pyd
 .Python
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.coverage
 
 # Environments / secrets
 .env
