@@ -271,3 +271,8 @@ sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table request_logs h
 2026-01-06 16:43:39,834 INFO CHAT request request_id=600e2881-739e-489e-9491-8a7ef239fa39 conv_id=4e1fee95-5eee-4cd9-b1b0-8386bbbc560c tenant=00D09000007j3AtEAI user_id=00509000004fpIaAAI message_len=38 history_len=2
 2026-01-06 16:45:24,344 INFO HTTP POST /chat ip=160.8.26.8 user=00509000004fpIaAAI org=00D09000007j3AtEAI
 2026-01-06 16:45:24,349 INFO CHAT request request_id=39d5ea37-5b33-4d18-9136-0a76a262d15d conv_id=4e1fee95-5eee-4cd9-b1b0-8386bbbc560c tenant=00D09000007j3AtEAI user_id=00509000004fpIaAAI message_len=59 history_len=4
+2026-01-20 14:11:07,787 INFO HTTP GET / ip=192.168.104.31 user=None org=None
+2026-01-20 14:11:07,868 INFO HTTP GET /favicon.ico ip=192.168.104.31 user=None org=None
+2026-01-20 14:11:32,258 INFO HTTP GET / ip=127.0.0.1 user=None org=None
+2026-01-20 14:11:34,869 INFO HTTP GET / ip=127.0.0.1 user=None org=None
+2026-01-20 14:15:10,122 INFO HTTP POST /chat ip=192.168.104.31 user=None org=None

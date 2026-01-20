@@ -1,28 +1,35 @@
-#!/bin/zsh
-cd ~/zendesk-mcp-server || exit 1
+#!/bin/bash
+# Start script for ZDZAS-MCP servers
 
-# Virtuele omgeving activeren of aanmaken
+cd "$(dirname "$0")" || exit 1
+
+# Check if virtual environment exists
 if [ ! -d ".venv" ]; then
-  echo "Virtuele omgeving niet gevonden, maak aan..."
+  echo "❌ Virtual environment not found!"
+  echo "Creating .venv..."
   python3 -m venv .venv
+  source .venv/bin/activate
+  echo "📦 Installing dependencies..."
+  pip install -r requirements.txt
+else
+  source .venv/bin/activate
 fi
-source .venv/bin/activate
 
-# Vereiste packages installeren
-pip install --upgrade pip uv flask > /dev/null
+# Check if .env exists
+if [ ! -f ".env" ]; then
+  echo "❌ .env file not found!"
+  echo "Copy .env.example to .env and configure it:"
+  echo "  cp .env.example .env"
+  exit 1
+fi
 
-# Start Flask-wrapper in achtergrond
-echo "Start Flask-wrapper op poort 5001..."
-nohup python3 server_wrapper.py > wrapper.log 2>&1 &
+echo "🚀 Starting ZDZAS-MCP servers..."
+echo ""
+echo "  📍 MCP Server:  http://127.0.0.1:8000/mcp"
+echo "  📍 Chat API:    http://0.0.0.0:9000"
+echo ""
+echo "Press Ctrl+C to stop all services"
+echo ""
 
-# Wacht even zodat Flask opstart
-sleep 2
-
-# Start ngrok-tunnel
-echo "Start ngrok..."
-nohup ngrok start --all --config=ngrok.yml > ngrok.log 2>&1 &
-
-# Toon ngrok-URL
-sleep 3
-curl --silent http://127.0.0.1:4040/api/tunnels | grep -Eo "https://[a-zA-Z0-9.-]+\.ngrok.io"
-echo "\n✅ Zendesk MCP-server + ngrok zijn gestart!"
+# Start both servers
+python3 start_all.py
