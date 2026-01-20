@@ -4,7 +4,7 @@ import os
 from datetime import datetime, timedelta
 
 import requests
-from db import (
+from src.zas.core.database import (
 	SessionLocal,
 	get_salesforce_oauth_credentials,
 	get_salesforce_session,

@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from db import Organisation, RequestLog, SessionLocal
+from src.zas.core.database import Organisation, RequestLog, SessionLocal
 from sqlalchemy import desc
 
 from src.zas.core.helpers import mcp
