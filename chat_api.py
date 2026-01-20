@@ -39,7 +39,14 @@ FEEDBACK_LOG_PATH = os.getenv("ZAS_FEEDBACK_LOG", "zas_feedback_log.jsonl")
 # FastAPI app + CORS
 # ---------------------------------------------------------------------------
 
-app = FastAPI(title="ZAS Chat API")
+app = FastAPI(
+	title="ZAS Chat API",
+	description="AI-powered chat assistant for Zendesk, Jira, Confluence, and Salesforce",
+	version="1.0.0",
+	docs_url="/docs",
+	redoc_url="/redoc",
+	openapi_url="/openapi.json",
+)
 
 app.add_middleware(
 	CORSMiddleware,
