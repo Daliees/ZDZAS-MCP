@@ -6,7 +6,7 @@ from typing import Optional
 
 import requests
 
-from core import mcp
+from src.zas.core.helpers import mcp
 from db import (
 	SessionLocal,
 	set_salesforce_session,

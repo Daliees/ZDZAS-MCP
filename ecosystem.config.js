@@ -28,9 +28,10 @@ module.exports = {
       args: "chat_api:app --host 0.0.0.0 --port 9000",
       cwd: "/home/meetmaxim/Code/DS/ZDZAS-MCP",
       interpreter: "/home/meetmaxim/Code/DS/ZDZAS-MCP/.venv/bin/python",
+      env_file: ".env",  // Load environment variables from .env file
       env: {
-        OPENAI_API_KEY: "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",
-        ZAS_MCP_SERVER_URL: "http://127.0.0.1:8000/mcp"
+        // Environment variables are now loaded from .env file
+        // Add any PM2-specific overrides here if needed
       }
     }
   ],

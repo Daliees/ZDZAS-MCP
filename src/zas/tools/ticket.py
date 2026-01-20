@@ -1,7 +1,7 @@
 # tools_ticket.py - tools voor tickets
 
 
-from core import mcp, _get, _put, _paginate_search
+from src.zas.core.helpers import mcp, _get, _put, _paginate_search
 import math
 import time
 import traceback

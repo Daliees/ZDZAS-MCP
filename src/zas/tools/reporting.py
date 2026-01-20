@@ -1,7 +1,7 @@
 # tools_reporting.py - tools voor reporting & export
 
 
-from core import mcp, _paginate_search
+from src.zas.core.helpers import mcp, _paginate_search
 import csv
 import os
 import traceback

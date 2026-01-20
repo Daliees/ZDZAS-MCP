@@ -1,6 +1,6 @@
 # tools_confluence.py - tools voor Confluence
 
-from core import mcp, _conf_get
+from src.zas.core.helpers import mcp, _conf_get
 import os
 import traceback
 import requests

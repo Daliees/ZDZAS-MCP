@@ -1,7 +1,7 @@
 # tools_general.py - tools voor algemeen
 
 
-from core import mcp
+from src.zas.core.helpers import mcp
 
 
 # =====================================================

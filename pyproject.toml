@@ -1,18 +1,23 @@
 [project]
-name = "zendesk-mcp-server"
-version = "0.1.0"
-description = "A simple Zendesk MCP server"
+name = "zdzas-mcp"
+version = "1.0.0"
+description = "AI-powered support assistant with Zendesk/Jira/Confluence integration"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "mcp>=1.1.2",
-    "python-dotenv>=1.0.1",
+    "cachetools>=6.2.2",
+    "fastmcp>=2.13.1",
+    "pandas>=2.3.3",
+    "pydantic>=2.12.4",
+    "python-dotenv>=1.2.1",
+    "requests>=2.32.5",
+    "uvicorn>=0.38.0",
+    "sqlalchemy>=2.0.36",
+    "openai-agents>=0.6.4",
     "zenpy>=2.0.56",
 ]
 
 [build-system]
-requires = [ "hatchling",]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[project.scripts]
-zendesk = "zendesk_mcp_server:main"

@@ -5,7 +5,7 @@ from datetime import datetime
 
 from sqlalchemy import desc
 
-from core import mcp
+from src.zas.core.helpers import mcp
 from db import SessionLocal, Organisation, RequestLog
 
 

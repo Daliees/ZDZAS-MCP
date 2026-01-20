@@ -10,10 +10,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from agents import TResponseInputItem
-from db import init_db
-from api.logging_utils import setup_logging
-from api.middleware import setup_middleware
-from api.routes import create_router
+from src.zas.core.database import init_db
+from src.zas.api.logging_utils import setup_logging
+from src.zas.api.middleware import setup_middleware
+from src.zas.api.routes import create_router
 
 # Load .env file
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

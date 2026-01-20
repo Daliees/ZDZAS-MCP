@@ -1,7 +1,7 @@
 # tools_kb.py - tools voor kennisbank
 
 
-from core import mcp, _get, _post, _paginate_search
+from src.zas.core.helpers import mcp, _get, _post, _paginate_search
 import os
 import traceback
 

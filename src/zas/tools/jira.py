@@ -1,6 +1,6 @@
 # tools_jira.py - tools voor Jira
 
-from core import mcp, _jira_get
+from src.zas.core.helpers import mcp, _jira_get
 import os
 import traceback
 import requests
