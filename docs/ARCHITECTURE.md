@@ -24,9 +24,9 @@ The MCP server registers and exposes tools from all modules:
 
 **Transport Options:**
 
-The system uses **HTTP transport** by default for production deployment. This choice offers several advantages:
+The system supports both **HTTP** and **stdio** transports, with HTTP as the default for production:
 
-**HTTP Transport (Default - Production)**
+**HTTP Transport (Default - RECOMMENDED for Production)**
 - ✅ Multi-client support: Multiple agents/users can connect simultaneously
 - ✅ Remote access: Accessible from anywhere (Salesforce, webhooks, remote clients)
 - ✅ Stateless: Each request is independent, easier to scale horizontally
@@ -34,45 +34,58 @@ The system uses **HTTP transport** by default for production deployment. This ch
 - ✅ Monitoring: Standard HTTP monitoring tools work out of the box
 - ✅ Debugging: Can test with curl, Postman, browser
 - ✅ Firewall-friendly: Port 8000 can be opened selectively
-- ❌ Slightly higher latency than stdio (negligible for most use cases)
+- ✅ **Required for Salesforce integration** - multiple concurrent users
+- ⚠️ Overhead: ~0.5-1ms per request (negligible vs 100-500ms API calls)
 
-**stdio Transport (Alternative - Development Only)**
-- ✅ Lower latency: Direct process communication
+**stdio Transport (Optional - Local Development Only)**
+- ✅ Slightly lower latency: ~0.5ms saved per request
 - ✅ MCP CLI compatible: Works with official MCP inspector tools
-- ✅ Simpler for single-client local development
-- ❌ Single client only: One agent process can connect at a time
-- ❌ No remote access: Must be on same machine
-- ❌ No concurrent requests: Serialized communication
+- ✅ Simpler for single-client local debugging
+- ❌ **Single client only**: One process can connect at a time
+- ❌ **No remote access**: Must be on same machine
+- ❌ **No concurrent requests**: Serialized communication
+- ❌ **Breaks Salesforce integration**: Cannot handle multiple users
 - ❌ Harder to monitor: No HTTP metrics/logs
-- ❌ Not suitable for Salesforce integration or webhooks
+
+**Performance Reality Check:**
+
+The latency difference between HTTP and stdio is **negligible** in practice:
+- HTTP overhead: ~0.5-1ms per MCP call
+- Zendesk API call: 100-300ms
+- Jira API call: 150-400ms
+- Confluence API call: 200-500ms
+- OpenAI LLM call: 500-2000ms
+
+**Conclusion:** The 0.5ms HTTP overhead is 0.1% of total request time. Use HTTP unless you specifically need MCP CLI debugging tools.
 
 **Configuration:**
 
-The MCP server can be configured via environment variables:
 ```bash
-# HTTP mode (default)
-export MCP_HOST=0.0.0.0
-export MCP_PORT=8000
+# HTTP mode (default - production)
+python3 app.py
+# or explicitly:
+python3 app.py --mode http --host 0.0.0.0 --port 8000
 
-# Start server
+# stdio mode (local debugging only)
+python3 app.py --mode stdio
+# or with environment variable:
+export MCP_MODE=stdio
 python3 app.py
 ```
 
-For local development with MCP CLI tools, stdio mode could be added:
-```python
-# app.py with stdio support (not currently implemented)
-import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument("--stdio", action="store_true")
-args = parser.parse_args()
+**When to use each mode:**
 
-if args.stdio:
-    helpers.mcp.run(transport="stdio")
-else:
-    helpers.mcp.run(transport="http", host="0.0.0.0", port=8000)
-```
+| Use Case | Mode | Why |
+|----------|------|-----|
+| Production deployment | HTTP | Multi-user, Salesforce integration |
+| Salesforce Lightning Component | HTTP | Required for remote access |
+| Multiple concurrent users | HTTP | stdio doesn't support this |
+| Load balanced setup | HTTP | Can distribute across servers |
+| Local development (multi-service) | HTTP | Test full stack integration |
+| MCP CLI debugging | stdio | Native MCP inspector compatibility |
+| Single-developer testing | stdio | Slightly simpler setup |
 
-**Recommendation:** Keep HTTP as the primary transport. The benefits for production deployment, Salesforce integration, and multi-user support far outweigh the minimal latency difference. stdio mode can be added later if needed for MCP CLI debugging.
+**Recommendation:** Always use HTTP mode unless you specifically need to debug with MCP CLI tools. The minimal latency benefit of stdio does not outweigh the limitations.
 
 ### 2. Chat API (`chat_api.py`)
 - **Port**: 9000
