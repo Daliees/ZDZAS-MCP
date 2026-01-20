@@ -23,54 +23,54 @@ export default function AuditPage() {
   })
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading audit logs...</div>
+    return <div className="text-center py-8 text-gray-400">Loading audit logs...</div>
   }
 
   return (
-    <div className="bg-white rounded-lg shadow">
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h2 className="text-2xl font-bold text-gray-900">Audit Logs</h2>
-        <p className="text-gray-600 mt-1">Immutable system audit trail for compliance</p>
+    <div className="bg-gray-800 rounded-lg shadow-xl border border-gray-700">
+      <div className="px-6 py-4 border-b border-gray-700">
+        <h2 className="text-2xl font-bold text-white">Audit Logs</h2>
+        <p className="text-gray-400 mt-1">Immutable system audit trail for compliance</p>
       </div>
       
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-gray-700">
+          <thead className="bg-gray-900">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                 Timestamp
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                 Action
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                 Resource
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                 Status
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-700">
             {logs?.map((log) => (
-              <tr key={log.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <tr key={log.id} className="hover:bg-gray-700 transition">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                   {format(new Date(log.timestamp), 'yyyy-MM-dd HH:mm:ss')}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-300">
                   {log.action}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                   {log.resource_type}
                   {log.resource_id && `: ${log.resource_id.substring(0, 8)}...`}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {log.success ? (
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-900 text-green-200 border border-green-700">
                       Success
                     </span>
                   ) : (
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-900 text-red-200 border border-red-700">
                       Failed
                     </span>
                   )}

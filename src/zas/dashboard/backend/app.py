@@ -10,11 +10,15 @@ Provides REST API endpoints for the admin dashboard to:
 
 import logging
 from contextlib import asynccontextmanager
+from datetime import timedelta
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBasicCredentials
+from pydantic import BaseModel
 
-from src.zas.core.database import init_db
+from src.zas.core.database import SessionLocal, init_db
+from src.zas.dashboard.backend.auth import authenticate_user, create_access_token, get_current_user, security
 from src.zas.dashboard.backend.routes import analytics, audit, compliance, conversations, organizations, users
 
 logger = logging.getLogger(__name__)
@@ -58,6 +62,57 @@ app.include_router(compliance.router, prefix="/api/compliance", tags=["complianc
 async def health_check():
 	"""Health check endpoint."""
 	return {"status": "healthy"}
+
+
+class LoginResponse(BaseModel):
+	"""Login response model."""
+
+	access_token: str
+	token_type: str
+	username: str
+
+
+@app.post("/api/auth/login", response_model=LoginResponse)
+async def login(credentials: HTTPBasicCredentials = Depends(security)):
+	"""Login endpoint - returns JWT token."""
+	username = authenticate_user(credentials.username, credentials.password)
+	if not username:
+		raise HTTPException(status_code=401, detail="Invalid credentials")
+
+	access_token = create_access_token(data={"sub": username}, expires_delta=timedelta(hours=8))
+	return LoginResponse(access_token=access_token, token_type="bearer", username=username)
+
+
+@app.get("/api/auth/verify")
+async def verify_token(current_user: str = Depends(get_current_user)):
+	"""Verify authentication token."""
+	return {"username": current_user, "authenticated": True}
+
+
+@app.get("/api/test/database")
+async def test_database():
+	"""Test database connectivity and return statistics."""
+	try:
+		from sqlalchemy import text
+		
+		with SessionLocal() as db:
+			# Test basic query
+			result = db.execute(text("SELECT COUNT(*) as count FROM sqlite_master WHERE type='table'"))
+			table_count = result.scalar()
+
+			# Get table names
+			result = db.execute(text("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"))
+			tables = [row[0] for row in result.fetchall()]
+
+			return {
+				"status": "connected",
+				"database": "sqlite",
+				"table_count": table_count,
+				"tables": tables,
+			}
+	except Exception as e:
+		logger.exception("Database test failed")
+		return {"status": "error", "message": str(e)}
 
 
 if __name__ == "__main__":
