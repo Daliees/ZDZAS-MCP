@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import argparse
 import json
 import logging
 import os
+import time
+from collections import defaultdict
+from datetime import datetime
 
 import requests
 from fastapi import FastAPI, Request, Response
@@ -11,9 +15,18 @@ from fastapi.middleware.cors import CORSMiddleware
 logger = logging.getLogger("mcp_proxy")
 logging.basicConfig(level=logging.INFO)
 
-# URL van lokale FastMCP-server
-# Voorbeeld: "http://127.0.0.1:8000/mcp" (zonder sessionId; voegen 'mcp_proxy' zelf toe)
+# URL of local FastMCP server
 MCP_UPSTREAM_URL = os.getenv("MCP_UPSTREAM_URL", "http://127.0.0.1:8000/mcp")
+
+# Metrics tracking
+metrics = {
+    "requests_total": 0,
+    "requests_success": 0,
+    "requests_error": 0,
+    "latency_sum": 0.0,
+    "start_time": datetime.now().isoformat(),
+    "tools_called": defaultdict(int),
+}
 
 app = FastAPI(
 	title="ZAS MCP HTTP proxy",
@@ -33,24 +46,28 @@ app.add_middleware(
 @app.post("/mcp")
 async def mcp_proxy(request: Request) -> Response:
 	"""
-	Proxy endpoint dat JSON-RPC requests doorstuurt naar de lokale MCP-server.
-	- Dwingt Accept-header af die FastMCP verwacht.
-	- Voegt een sessionId toe aan de querystring.
-	- Converteert upstream HTTP-fouten naar HTTP 200 met JSON-RPC error, om
-	  'http_error' / 424 fouten bij HostedMCPTool te voorkomen.
+	Proxy endpoint that forwards JSON-RPC requests to the local MCP server.
+	- Enforces Accept header that FastMCP expects
+	- Adds sessionId to querystring
+	- Converts upstream HTTP errors to HTTP 200 with JSON-RPC error
+	  to prevent http_error/424 errors with HostedMCPTool
 	"""
-	# Lees raw body
+	start_time = time.time()
+	metrics["requests_total"] += 1
+	
+	# Read raw body
 	try:
 		body_bytes = await request.body()
 		body_text = body_bytes.decode("utf-8") if body_bytes else ""
 	except Exception as e:
-		logger.exception("Kon request body niet lezen: %s", e)
+		logger.exception("Could not read request body: %s", e)
+		metrics["requests_error"] += 1
 		error = {
 			"jsonrpc": "2.0",
 			"id": "proxy-error",
 			"error": {
 				"code": -32700,
-				"message": f"Proxy kon request body niet lezen: {e}",
+				"message": f"Proxy could not read request body: {e}",
 			},
 		}
 		return Response(
@@ -81,13 +98,14 @@ async def mcp_proxy(request: Request) -> Response:
 			timeout=60,
 		)
 	except Exception as e:
-		logger.exception("Fout bij HTTP-call naar MCP upstream: %s", e)
+		logger.exception("Error calling upstream MCP: %s", e)
+		metrics["requests_error"] += 1
 		error = {
 			"jsonrpc": "2.0",
 			"id": "proxy-upstream-error",
 			"error": {
 				"code": -32001,
-				"message": f"Proxy kon upstream MCP niet bereiken: {e}",
+				"message": f"Proxy could not reach upstream MCP: {e}",
 			},
 		}
 		return Response(
@@ -151,7 +169,19 @@ async def mcp_proxy(request: Request) -> Response:
 			status_code=200,
 		)
 
-	# Happy path: upstream gaf 2xx + geldige JSON – geef 1-op-1 door
+	# Happy path: upstream gave 2xx + valid JSON – pass through
+	metrics["requests_success"] += 1
+	metrics["latency_sum"] += time.time() - start_time
+	
+	# Track tool calls
+	try:
+		body_json = json.loads(body_text) if body_text else {}
+		if isinstance(body_json, dict) and body_json.get("method") == "tools/call":
+			tool_name = body_json.get("params", {}).get("name", "unknown")
+			metrics["tools_called"][tool_name] += 1
+	except:
+		pass
+	
 	return Response(
 		content=json.dumps(upstream_json),
 		media_type="application/json",
@@ -161,18 +191,81 @@ async def mcp_proxy(request: Request) -> Response:
 
 @app.get("/health")
 async def health() -> dict:
-	return {
-		"status": "ok",
+	"""Health check endpoint with upstream connectivity test"""
+	health_status = {
+		"status": "healthy",
+		"service": "mcp-proxy",
 		"upstream": MCP_UPSTREAM_URL,
+		"timestamp": datetime.now().isoformat(),
+	}
+	
+	# Test upstream connectivity
+	try:
+		resp = requests.get(MCP_UPSTREAM_URL.replace("/mcp", "/health"), timeout=2)
+		if resp.status_code == 200:
+			health_status["upstream_status"] = "ok"
+		else:
+			health_status["upstream_status"] = f"error: HTTP {resp.status_code}"
+			health_status["status"] = "degraded"
+	except Exception as e:
+		health_status["upstream_status"] = f"error: {str(e)}"
+		health_status["status"] = "degraded"
+	
+	return health_status
+
+
+@app.get("/metrics")
+async def get_metrics() -> dict:
+	"""Metrics endpoint for monitoring"""
+	total_requests = metrics["requests_total"]
+	avg_latency = (
+		metrics["latency_sum"] / metrics["requests_success"]
+		if metrics["requests_success"] > 0
+		else 0
+	)
+	
+	return {
+		"service": "mcp-proxy",
+		"start_time": metrics["start_time"],
+		"uptime_seconds": (datetime.now() - datetime.fromisoformat(metrics["start_time"])).total_seconds(),
+		"requests": {
+			"total": total_requests,
+			"success": metrics["requests_success"],
+			"error": metrics["requests_error"],
+			"success_rate": metrics["requests_success"] / total_requests if total_requests > 0 else 0,
+		},
+		"latency": {
+			"average_ms": round(avg_latency * 1000, 2),
+		},
+		"tools_called": dict(metrics["tools_called"]),
 	}
 
 
 if __name__ == "__main__":
 	import uvicorn
 
+	parser = argparse.ArgumentParser(description="MCP HTTP Proxy Server")
+	parser.add_argument(
+		"--host",
+		default="0.0.0.0",
+		help="Host to bind to (default: 0.0.0.0)",
+	)
+	parser.add_argument(
+		"--port",
+		type=int,
+		default=int(os.getenv("MCP_PROXY_PORT", "8100")),
+		help="Port to bind to (default: 8100)",
+	)
+	parser.add_argument(
+		"--reload",
+		action="store_true",
+		help="Enable auto-reload on code changes",
+	)
+	args = parser.parse_args()
+
 	uvicorn.run(
 		"mcp_proxy:app",
-		host="0.0.0.0",
-		port=int(os.getenv("MCP_PROXY_PORT", "8100")),
-		reload=True,
+		host=args.host,
+		port=args.port,
+		reload=args.reload,
 	)

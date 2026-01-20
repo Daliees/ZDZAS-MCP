@@ -22,6 +22,58 @@ The MCP server registers and exposes tools from all modules:
 - Salesforce tools
 - Ticket (Zendesk) tools
 
+**Transport Options:**
+
+The system uses **HTTP transport** by default for production deployment. This choice offers several advantages:
+
+**HTTP Transport (Default - Production)**
+- ✅ Multi-client support: Multiple agents/users can connect simultaneously
+- ✅ Remote access: Accessible from anywhere (Salesforce, webhooks, remote clients)
+- ✅ Stateless: Each request is independent, easier to scale horizontally
+- ✅ Load balancing: Can be placed behind nginx/load balancer
+- ✅ Monitoring: Standard HTTP monitoring tools work out of the box
+- ✅ Debugging: Can test with curl, Postman, browser
+- ✅ Firewall-friendly: Port 8000 can be opened selectively
+- ❌ Slightly higher latency than stdio (negligible for most use cases)
+
+**stdio Transport (Alternative - Development Only)**
+- ✅ Lower latency: Direct process communication
+- ✅ MCP CLI compatible: Works with official MCP inspector tools
+- ✅ Simpler for single-client local development
+- ❌ Single client only: One agent process can connect at a time
+- ❌ No remote access: Must be on same machine
+- ❌ No concurrent requests: Serialized communication
+- ❌ Harder to monitor: No HTTP metrics/logs
+- ❌ Not suitable for Salesforce integration or webhooks
+
+**Configuration:**
+
+The MCP server can be configured via environment variables:
+```bash
+# HTTP mode (default)
+export MCP_HOST=0.0.0.0
+export MCP_PORT=8000
+
+# Start server
+python3 app.py
+```
+
+For local development with MCP CLI tools, stdio mode could be added:
+```python
+# app.py with stdio support (not currently implemented)
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--stdio", action="store_true")
+args = parser.parse_args()
+
+if args.stdio:
+    helpers.mcp.run(transport="stdio")
+else:
+    helpers.mcp.run(transport="http", host="0.0.0.0", port=8000)
+```
+
+**Recommendation:** Keep HTTP as the primary transport. The benefits for production deployment, Salesforce integration, and multi-user support far outweigh the minimal latency difference. stdio mode can be added later if needed for MCP CLI debugging.
+
 ### 2. Chat API (`chat_api.py`)
 - **Port**: 9000
 - **Framework**: FastAPI
@@ -32,8 +84,37 @@ The MCP server registers and exposes tools from all modules:
   - `POST /reset` - Reset conversation
 
 ### 3. MCP Proxy (`mcp_proxy.py`)
-- **Port**: 8080
-- **Purpose**: Proxy for MCP requests
+- **Port**: 8080 (configurable)
+- **Purpose**: Proxy for MCP requests with metrics and monitoring
+- **Features**:
+  - Request/response proxying with error handling
+  - Metrics tracking (requests, latency, tool usage)
+  - Health checks with upstream connectivity test
+  - CLI arguments for configuration
+
+**Endpoints:**
+- `POST /mcp` - Proxy MCP JSON-RPC requests
+- `GET /health` - Health status with upstream check
+- `GET /metrics` - Performance metrics and statistics
+
+**Usage:**
+```bash
+# Start with default settings
+python3 mcp_proxy.py
+
+# Custom host/port
+python3 mcp_proxy.py --host 127.0.0.1 --port 8100
+
+# Enable hot-reload for development
+python3 mcp_proxy.py --reload
+```
+
+**Metrics Tracked:**
+- Total requests (success/error counts)
+- Average latency
+- Tool call frequency by tool name
+- Uptime and start time
+- Success rate percentage
 
 ## Directory Structure
 
