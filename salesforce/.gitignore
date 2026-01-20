@@ -1,0 +1,25 @@
+# Salesforce specific
+.sfdx/
+.localdevserver/
+.sf/
+*.dup
+.org-metadata/
+
+# LWC Jest
+**/__tests__/**
+**/__mocks__/**
+
+# Logs
+*.log
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/settings.json
+.idea/
+
+# Scratch Org Info
+*.scratch.json
+config/project-scratch-def.json.bak

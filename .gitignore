@@ -1,0 +1,46 @@
+# Virtual environments
+.venv/
+venv/
+env/
+**/venv/
+**/env/
+**/ENV/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.coverage
+
+# Environments / secrets
+.env
+.env.*
+env-dot
+!*.example
+
+# Editors / tooling
+.vscode/
+.idea/
+
+# Logs & run artifacts
+logs/
+*.log
+*.jsonl
+*.db
+nohup.out
+wrapper.log
+ngrok.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+/logs
+
+
+node_modules/

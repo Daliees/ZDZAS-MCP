@@ -1,0 +1,301 @@
+2025-12-30 17:29:07,971 INFO Incoming /chat request request_id=021ffdcd-1ec9-4033-b074-db6f6c39bd3e
+2025-12-30 17:29:20,941 ERROR DB logging failed for request_id=021ffdcd-1ec9-4033-b074-db6f6c39bd3e
+Traceback (most recent call last):
+  File "C:\Users\Ryan\code\ZDZAS-MCP\chat_api.py", line 247, in chat
+    upsert_entities(db, org_id=org_id, organisation_name=org_name, user_id=user_id, user_name=user_name)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: upsert_entities() got an unexpected keyword argument 'org_id'
+2025-12-30 17:32:01,346 INFO Incoming /chat request request_id=d2af385c-73d2-43b6-854e-a66633ec742c
+2025-12-30 17:32:07,454 ERROR DB logging failed for request_id=d2af385c-73d2-43b6-854e-a66633ec742c
+Traceback (most recent call last):
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\engine\default.py", line 941, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: table request_logs has no column named conversation_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Ryan\code\ZDZAS-MCP\chat_api.py", line 262, in chat
+    db.commit()
+    ~~~~~~~~~^^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\session.py", line 2028, in commit
+    trans.commit(_to_root=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<string>", line 2, in commit
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\session.py", line 1313, in commit
+    self._prepare_impl()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "<string>", line 2, in _prepare_impl
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\session.py", line 1288, in _prepare_impl
+    self.session.flush()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\session.py", line 4352, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\session.py", line 4487, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\session.py", line 4448, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\persistence.py", line 1048, in _emit_insert_statements
+    result = connection.execute(
+        statement, multiparams, execution_options=execution_options
+    )
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\engine\base.py", line 1418, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\sql\elements.py", line 515, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\engine\base.py", line 1640, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\engine\base.py", line 2355, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\engine\default.py", line 941, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table request_logs has no column named conversation_id
+[SQL: INSERT INTO request_logs (request_id, user_id, organisation_id, conversation_id, tenant_id, message, reply, tokens_used, salesforce_org_id, salesforce_user_id, salesforce_user_name, error, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('d2af385c-73d2-43b6-854e-a66633ec742c', '00509000004fpIaAAI', '00D09000007j3AtEAI', 'ef3e1cb0-1ddf-4421-884e-f7d4a954620a', '00D09000007j3AtEAI', 'Zaaas', 'Er zijn geen opgeloste tickets gevonden voor tenantId 00D09000007j3AtEAI sinds 1 oktober 2025. Wil je dat ik op een andere manier zoek of iets anders voor je analyseer?', 43, '00D09000007j3AtEAI', '00509000004fpIaAAI', 'Admin Tigris', None, '2025-12-30 16:32:07.454136')]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-12-30 17:34:28,813 INFO Incoming /chat request request_id=e00beee3-1fe9-413e-8c08-86435022da22
+2025-12-30 17:34:32,944 ERROR DB logging failed for request_id=e00beee3-1fe9-413e-8c08-86435022da22
+Traceback (most recent call last):
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\engine\default.py", line 941, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: table request_logs has no column named conversation_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Ryan\code\ZDZAS-MCP\chat_api.py", line 262, in chat
+    db.commit()
+    ~~~~~~~~~^^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\session.py", line 2028, in commit
+    trans.commit(_to_root=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<string>", line 2, in commit
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\session.py", line 1313, in commit
+    self._prepare_impl()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "<string>", line 2, in _prepare_impl
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\session.py", line 1288, in _prepare_impl
+    self.session.flush()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\session.py", line 4352, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\session.py", line 4487, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\session.py", line 4448, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\orm\persistence.py", line 1048, in _emit_insert_statements
+    result = connection.execute(
+        statement, multiparams, execution_options=execution_options
+    )
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\engine\base.py", line 1418, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\sql\elements.py", line 515, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\engine\base.py", line 1640, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\engine\base.py", line 2355, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Ryan\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\sqlalchemy\engine\default.py", line 941, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table request_logs has no column named conversation_id
+[SQL: INSERT INTO request_logs (request_id, user_id, organisation_id, conversation_id, tenant_id, message, reply, tokens_used, salesforce_org_id, salesforce_user_id, salesforce_user_name, error, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('e00beee3-1fe9-413e-8c08-86435022da22', '00509000004fpIaAAI', '00D09000007j3AtEAI', 'ef3e1cb0-1ddf-4421-884e-f7d4a954620a', '00D09000007j3AtEAI', 'ping', 'De FastMCP-server is bereikbaar en functioneert naar behoren. Hoe kan ik u verder helpen?', 23, '00D09000007j3AtEAI', '00509000004fpIaAAI', 'Admin Tigris', None, '2025-12-30 16:34:32.944113')]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-01-05 13:45:58,760 INFO HTTP POST /chat ip=160.8.26.8 user=00509000004fpIaAAI org=00D09000007j3AtEAI
+2026-01-05 13:46:02,719 INFO CHAT request request_id=b7d77f79-94fd-40da-836e-c059b310d0bd conv_id=c098c5c7-39f9-499b-8d15-401a8669b5ad tenant=00D09000007j3AtEAI user_id=00509000004fpIaAAI message_len=5 history_len=0
+2026-01-05 13:46:22,596 INFO HTTP POST /chat ip=160.8.26.8 user=00509000004fpIaAAI org=00D09000007j3AtEAI
+2026-01-05 13:46:22,597 INFO CHAT request request_id=6bb3449c-8c2d-4347-91a2-b8390a776d5b conv_id=c098c5c7-39f9-499b-8d15-401a8669b5ad tenant=00D09000007j3AtEAI user_id=00509000004fpIaAAI message_len=38 history_len=4
+2026-01-05 16:13:16,566 INFO HTTP GET /ping ip=127.0.0.1 user=None org=None
+2026-01-05 16:13:56,193 INFO HTTP GET /ping ip=127.0.0.1 user=None org=None
+2026-01-05 16:21:46,866 INFO HTTP GET /ping ip=127.0.0.1 user=None org=None
+2026-01-05 16:23:10,294 INFO HTTP GET /ping ip=127.0.0.1 user=None org=None
+2026-01-05 16:27:09,574 INFO HTTP GET /ping ip=127.0.0.1 user=None org=None
+2026-01-05 16:30:48,286 INFO HTTP GET /ping ip=127.0.0.1 user=None org=None
+2026-01-05 16:32:03,356 INFO HTTP GET /ping ip=127.0.0.1 user=None org=None
+2026-01-05 16:59:23,191 INFO HTTP GET /ping ip=127.0.0.1 user=None org=None
+2026-01-06 16:41:48,351 INFO HTTP POST /chat ip=160.8.26.8 user=00509000004fpIaAAI org=00D09000007j3AtEAI
+2026-01-06 16:41:52,718 INFO CHAT request request_id=a773abcf-fad3-401e-973d-552143c8b9e9 conv_id=4e1fee95-5eee-4cd9-b1b0-8386bbbc560c tenant=00D09000007j3AtEAI user_id=00509000004fpIaAAI message_len=35 history_len=0
+2026-01-06 16:43:39,825 INFO HTTP POST /chat ip=160.8.26.8 user=00509000004fpIaAAI org=00D09000007j3AtEAI
+2026-01-06 16:43:39,834 INFO CHAT request request_id=600e2881-739e-489e-9491-8a7ef239fa39 conv_id=4e1fee95-5eee-4cd9-b1b0-8386bbbc560c tenant=00D09000007j3AtEAI user_id=00509000004fpIaAAI message_len=38 history_len=2
+2026-01-06 16:45:24,344 INFO HTTP POST /chat ip=160.8.26.8 user=00509000004fpIaAAI org=00D09000007j3AtEAI
+2026-01-06 16:45:24,349 INFO CHAT request request_id=39d5ea37-5b33-4d18-9136-0a76a262d15d conv_id=4e1fee95-5eee-4cd9-b1b0-8386bbbc560c tenant=00D09000007j3AtEAI user_id=00509000004fpIaAAI message_len=59 history_len=4
+2026-01-20 14:11:07,787 INFO HTTP GET / ip=192.168.104.31 user=None org=None
+2026-01-20 14:11:07,868 INFO HTTP GET /favicon.ico ip=192.168.104.31 user=None org=None
+2026-01-20 14:11:32,258 INFO HTTP GET / ip=127.0.0.1 user=None org=None
+2026-01-20 14:11:34,869 INFO HTTP GET / ip=127.0.0.1 user=None org=None
+2026-01-20 14:15:10,122 INFO HTTP POST /chat ip=192.168.104.31 user=None org=None
+2026-01-20 14:42:29,462 INFO HTTP POST /chat ip=192.168.104.31 user=None org=None
+2026-01-20 14:49:15,493 INFO HTTP GET / ip=127.0.0.1 user=None org=None
+2026-01-20 14:49:38,802 INFO HTTP GET / ip=127.0.0.1 user=None org=None
+2026-01-20 14:50:58,539 INFO HTTP GET / ip=127.0.0.1 user=None org=None
+2026-01-20 14:52:17,143 INFO HTTP GET / ip=127.0.0.1 user=None org=None
+2026-01-20 15:06:03,078 INFO HTTP GET / ip=127.0.0.1 user=None org=None
+2026-01-20 15:08:16,728 INFO HTTP GET / ip=127.0.0.1 user=None org=None
+2026-01-20 15:09:58,667 INFO HTTP GET / ip=127.0.0.1 user=None org=None
+2026-01-20 15:11:06,197 INFO HTTP GET / ip=127.0.0.1 user=None org=None
+2026-01-20 15:11:21,784 INFO HTTP GET /ping ip=127.0.0.1 user=None org=None
+2026-01-20 15:13:52,940 INFO HTTP GET / ip=127.0.0.1 user=None org=None
+2026-01-20 15:13:58,351 INFO HTTP GET / ip=127.0.0.1 user=None org=None
+2026-01-20 15:14:02,209 INFO HTTP GET /ping ip=127.0.0.1 user=None org=None
+2026-01-20 15:18:46,644 INFO HTTP GET / ip=127.0.0.1 user=None org=None
+2026-01-20 15:18:46,778 INFO HTTP GET /favicon.ico ip=127.0.0.1 user=None org=None
+2026-01-20 15:18:50,465 INFO HTTP GET /docs ip=127.0.0.1 user=None org=None
+2026-01-20 15:18:50,503 INFO HTTP GET /favicon.ico ip=127.0.0.1 user=None org=None
+2026-01-20 15:18:51,696 INFO HTTP GET /docs ip=127.0.0.1 user=None org=None
+2026-01-20 15:18:51,741 INFO HTTP GET /docs ip=127.0.0.1 user=None org=None
+2026-01-20 15:18:51,744 INFO HTTP GET /favicon.ico ip=127.0.0.1 user=None org=None
+2026-01-20 15:18:51,778 INFO HTTP GET /favicon.ico ip=127.0.0.1 user=None org=None
+2026-01-20 15:18:53,827 INFO HTTP GET /docs ip=127.0.0.1 user=None org=None
+2026-01-20 15:18:53,881 INFO HTTP GET /favicon.ico ip=127.0.0.1 user=None org=None

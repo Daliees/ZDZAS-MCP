@@ -28,6 +28,8 @@ Het project breidt de standaard Zendesk AI-functionaliteit uit met een set slimm
 - ✔ Ticket-clustering, metrics, tagging & exports
 - ✔ Modulair ontwerp — eenvoudig nieuwe tools toevoegen
 - ✔ Veilige integratie via env-variabelen
+- ✔ **Salesforce Lightning Web Component** voor chat interface met streaming responses
+- ✔ **Real-time AI Chat** met typing indicators en conversation management
 
 ---
 
@@ -120,12 +122,60 @@ Deze worden dynamisch ingelezen vanuit:
 ZDZAS-MCP/
 │
 ├── app.py                     # MCP server + alle tools
+├── chat_api.py                # FastAPI chat endpoint met streaming
+├── zas_agent.py               # AI agent met tool integraties
 ├── .env                       # Environment configuratie
+├── salesforce/                # Salesforce Lightning Web Component
+│   ├── force-app/
+│   │   └── main/default/
+│   │       ├── lwc/zasChatUtility/     # Chat component
+│   │       └── classes/                # Apex controllers
+│   ├── README.md              # Salesforce setup guide
+│   ├── QUICKSTART.md          # Quick setup guide
+│   └── test-harness.html      # Local testing tool
 ├── docs/
 │   ├── screenshots/           # Screenshot afbeeldingen
 │   └── images/                # Banners / visuals
-└── requirements.txt           # Dependencies (indien gebruikt)
+└── requirements.txt           # Dependencies
 ```
+
+---
+
+## 💼 Salesforce Integratie
+
+ZDZAS-MCP bevat nu een volledig functionerende **Salesforce Lightning Web Component** die:
+
+- 🎨 Moderne chat interface biedt met Salesforce Lightning Design System
+- 💬 Real-time streaming responses toont met typing indicators
+- 🔄 Conversatie context behoudt over meerdere berichten
+- 🚀 Direct integreert met de chat API endpoint
+- 📱 Responsive werkt op desktop en mobile
+- ✨ Alle enterprise features bevat: error handling, session management, tests
+
+### Quick Start voor Salesforce
+
+```bash
+# 1. Start de API services
+python app.py        # Terminal 1
+python chat_api.py   # Terminal 2
+
+# 2. Deploy naar Salesforce
+cd salesforce
+sf org login web --alias my-org
+sf project deploy start --source-dir force-app
+
+# 3. Configureer Remote Site Settings in Salesforce Setup
+# 4. Voeg component toe aan een Lightning page
+```
+
+📖 **Volledige documentatie**: Zie [`salesforce/README.md`](salesforce/README.md) voor:
+- Gedetailleerde installatie instructies
+- API endpoint configuratie
+- Testing in Salesforce
+- Troubleshooting guide
+- Advanced customization opties
+
+🧪 **Test lokaal eerst**: Open [`salesforce/test-harness.html`](salesforce/test-harness.html) in je browser om de API te testen voordat je naar Salesforce deployt.
 
 ---
 

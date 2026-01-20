@@ -1,0 +1,6 @@
+<aura:component implements="flexipage:availableForAllPageTypes,lightning:utilityItem" access="global">
+    <aura:attribute name="panelVisible" type="Boolean" default="false"/>
+    
+    <!-- Embed the LWC -->
+    <c:zasChatUtility/>
+</aura:component>
