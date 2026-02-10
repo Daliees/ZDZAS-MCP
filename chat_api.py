@@ -12,14 +12,14 @@ from fastapi import FastAPI, HTTPException, Header, Body
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from agents import TResponseInputItem
+from langchain_core.messages import BaseMessage
 from zas_agent import run_zas_chat_turn
 
 # ---------------------------------------------------------------------------
 # In-memory conversatiegeschiedenis
 # ---------------------------------------------------------------------------
 
-conversation_histories: Dict[str, List[TResponseInputItem]] = {}
+conversation_histories: Dict[str, List[BaseMessage]] = {}
 
 # Pad voor feedback-log (JSON Lines)
 FEEDBACK_LOG_PATH = os.getenv("ZAS_FEEDBACK_LOG", "zas_feedback_log.jsonl")
