@@ -297,7 +297,7 @@ def tickets_analyze(
 
         metrics_rows = []
         if enrich_with_metrics:
-            sample_ids = [t["id"] for t in tickets[:max(0, min(metrics_sample, len(tickets)))]]
+            sample_ids = [t["id"] for t in tickets[:min(metrics_sample, len(tickets))]]
             for tid in sample_ids:
                 try:
                     m = _get(f"/tickets/{tid}/metrics.json").get("ticket_metric", {})
