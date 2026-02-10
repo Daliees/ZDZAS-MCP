@@ -1,13 +1,16 @@
 [project]
 name = "zendesk-mcp-server"
-version = "0.1.0"
-description = "A simple Zendesk MCP server"
+version = "0.2.0"
+description = "A Zendesk MCP server with LangChain-powered AI agent"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "mcp>=1.1.2",
     "python-dotenv>=1.0.1",
     "zenpy>=2.0.56",
+    "langchain>=1.2.10",
+    "langchain-core>=1.2.10",
+    "langchain-openai>=1.1.8",
 ]
 
 [build-system]

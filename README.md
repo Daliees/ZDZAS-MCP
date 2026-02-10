@@ -1,8 +1,6 @@
 # 🧠 ZDZAS-MCP
 
-**Zendesk AI Management & Integration Server**
-
-<small>(fotoZAS-placeholder)</small>
+**Zendesk AI Management & Integration Server — powered by LangChain**
 
 ---
 
@@ -13,7 +11,7 @@ ZDZAS-MCP is een krachtige, modulaire MCP-server gebouwd voor volledige integrat
 - **Zendesk** (tickets, kennisbank, gebruikersdata)
 - **Jira** (technische incidenten & developer updates)
 - **Confluence** (productdocumentatie & handleidingen)
-- **AI-agenten** die beslissingen nemen op basis van data uit deze systemen
+- **AI-agenten** (LangChain) die beslissingen nemen op basis van data uit deze systemen
 
 Het project breidt de standaard Zendesk AI-functionaliteit uit met een set slimme tools die real-time context, analyses en contentgeneratie mogelijk maken. Hierdoor kunnen supportmedewerkers sneller, consistenter en met meer kennis antwoorden — zonder handmatig te schakelen tussen systemen.
 
@@ -28,29 +26,59 @@ Het project breidt de standaard Zendesk AI-functionaliteit uit met een set slimm
 - ✔ Ticket-clustering, metrics, tagging & exports
 - ✔ Modulair ontwerp — eenvoudig nieuwe tools toevoegen
 - ✔ Veilige integratie via env-variabelen
+- ✔ **LangChain-powered** AI agent met tool-calling
 
 ---
 
-## 🖼️ Screenshots
+## 🧩 Architectuur
 
-Vervang onderstaande placeholders door jouw echte screenshots wanneer beschikbaar.
+```
+ZDZAS-MCP/
+│
+├── app.py                     # MCP server entrypoint (HTTP mode)
+├── core.py                    # Centrale config, env, API helpers
+├── zas_agent.py               # LangChain agent + tool definities
+├── chat_api.py                # FastAPI chat endpoint
+├── mcp_proxy.py               # MCP HTTP proxy
+├── server_wrapper.py          # Flask wrapper
+│
+├── tools_ticket.py            # MCP tools: tickets
+├── tools_kb.py                # MCP tools: kennisbank
+├── tools_jira.py              # MCP tools: Jira
+├── tools_confluence.py        # MCP tools: Confluence
+├── tools_reporting.py         # MCP tools: reporting/export
+├── tools_general.py           # MCP tools: algemeen
+│
+├── src/zendesk_mcp_server/    # Installeerbaar module-pakket
+│   ├── __init__.py
+│   ├── server.py
+│   └── zendesk_client.py
+│
+├── requirements.txt           # Python dependencies
+├── pyproject.toml             # Project metadata & build config
+├── Dockerfile                 # Docker containerisatie
+├── Procfile                   # Heroku deployment
+├── start_mcp.sh               # Startup script (MCP + ngrok)
+├── .env.example               # Environment variabelen template
+└── LICENSE                    # Apache 2.0
+```
 
-- 📌 MCP Server Dashboard
-- 📌 Zendesk AI Agent met MCP Tools
-- 📌 Jira-informatie direct in de Zendesk AI
-- 📌 Confluence-documentatie automatisch opgehaald
+### Twee lagen
+
+| Laag | Beschrijving |
+|------|-------------|
+| **MCP Server** | FastMCP tools (`tools_*.py`) die de Zendesk/Jira/Confluence APIs wrappen. Bereikbaar via HTTP JSON-RPC op `/mcp`. |
+| **LangChain Agent** | `zas_agent.py` definieert LangChain `@tool` functies en bouwt de agent met `langchain.agents.create_agent`. De agent roept de API helpers uit `core.py` direct aan (geen HTTP roundtrip). |
 
 ---
 
-## 🧩 Tool Overzicht
-
-Hieronder staat een overzicht van alle tools die de MCP-server exposeert voor de Zendesk AI agent.
+## 🛠️ Tool Overzicht
 
 ### 🔧 Algemene Tools
 
 | Tool | Doel |
 |------|------|
-| `ping` | Test of de MCP-server actief is |
+| `ping` | Test of de agent/MCP-server actief is |
 | `tickets_export_csv` | Exporteert tickets naar CSV-bestand |
 | `tickets_search` | Geavanceerde zoekopdrachten in Zendesk |
 | `ticket_get` | Haalt ticketdetails op |
@@ -62,7 +90,6 @@ Hieronder staat een overzicht van alle tools die de MCP-server exposeert voor de
 
 | Tool | Doel |
 |------|------|
-| `ticket_cluster_topics` | Clustert tickets op onderwerp |
 | `ticket_categorize` | Categoriseert tickets automatisch |
 | `ticket_generate_draft` | Genereert conceptantwoorden via AI |
 | `ticket_solution_rate` | Berekent oplossingstypes / succesratio's |
@@ -75,17 +102,12 @@ Hieronder staat een overzicht van alle tools die de MCP-server exposeert voor de
 | `kb_search_articles` | Zoekt artikelen in Zendesk Guide |
 | `kb_generate_draft` | Genereert nieuwe KB-artikelinhoud |
 | `kb_create_draft_article` | Maakt conceptartikelen in een sectie |
-| `kb_list_permissions_and_segments` | Haalt toegangs- en permissiegroepen op |
 
 ### 🛠️ Jira Tools
 
 | Tool | Doel |
 |------|------|
 | `jira_get_issue` | Haalt status, comments & updates van Jira-issues op |
-
-**Gebruiksvoorbeelden:**
-- Supportticket is "geparkeerd" → haal real-time developer updates op
-- Jira-issue bevat laatste foutanalyse → toon samenvatting aan agent
 
 ### 📘 Confluence Tools
 
@@ -94,9 +116,45 @@ Hieronder staat een overzicht van alle tools die de MCP-server exposeert voor de
 | `confluence_search_pages` | Zoekt productdocumentatie en handleidingen |
 | `confluence_get_page` | Haalt volledige pagina-inhoud op |
 
-**Gebruiksvoorbeelden:**
-- Agent heeft productuitleg nodig
-- Ticket bevat foutmelding → zoek direct in Confluence-documentatie
+---
+
+## 🔧 Installatie & Gebruik
+
+### Vereisten
+
+- Python 3.12+
+- OpenAI API key
+- Zendesk subdomain, e-mail & API token
+
+### Lokale ontwikkeling
+
+```bash
+# 1. Maak een virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+
+# 2. Installeer dependencies
+pip install -r requirements.txt
+
+# 3. Configureer environment
+cp .env.example .env
+# Vul de API keys en credentials in
+
+# 4. Start de MCP server (optioneel, voor externe tools)
+python app.py
+# Server: http://127.0.0.1:8000/mcp
+
+# 5. Start de Chat API (LangChain agent)
+python chat_api.py
+# Chat endpoint: http://127.0.0.1:9000/chat
+```
+
+### Docker
+
+```bash
+docker build -t zdzas-mcp .
+docker run --env-file .env zdzas-mcp
+```
 
 ---
 
@@ -105,45 +163,28 @@ Hieronder staat een overzicht van alle tools die de MCP-server exposeert voor de
 Het project maakt gebruik van veilige API-authenticatie via environment variables:
 
 - **Zendesk** subdomein, e-mail & API-token
-- **Jira** base URL, e-mail & API-token
-- **Confluence** base URL, e-mail & API-token
+- **Jira** base URL, e-mail & API-token (optioneel)
+- **Confluence** base URL, e-mail & API-token (optioneel)
+- **OpenAI** API key (voor LangChain agent)
 
-Deze worden dynamisch ingelezen vanuit:
-- `./.env` (naast app.py)
-- of systeemvariabelen in productie.
-
----
-
-## 🧱 Architectuur
-
-```
-ZDZAS-MCP/
-│
-├── app.py                     # MCP server + alle tools
-├── .env                       # Environment configuratie
-├── docs/
-│   ├── screenshots/           # Screenshot afbeeldingen
-│   └── images/                # Banners / visuals
-└── requirements.txt           # Dependencies (indien gebruikt)
-```
+Deze worden dynamisch ingelezen vanuit `.env` of systeemvariabelen.
 
 ---
 
-## 🤖 Hoe de AI-agent dit gebruikt
+## 🤖 LangChain Agent
 
-De MCP-tools worden automatisch zichtbaar in de Zendesk AI Agent.
+De AI-agent is gebouwd met [LangChain](https://python.langchain.com/) en gebruikt:
 
-De agent gebruikt deze tools volgens logica zoals:
-- Haal Jira-status op → samenvatten voor supportmedewerker
-- Vind relevante Confluence-documenten → gebruik in antwoord
-- Genereer KB-artikelen → automatisch opgeslagen als concept
-- Analyseer tickets of clusters → aanbevelingen genereren
+- **`langchain.agents.create_agent`** — creëert een tool-calling agent graph
+- **`langchain_openai.ChatOpenAI`** — OpenAI chat model (default: `gpt-4.1-mini`)
+- **`langchain_core.tools.tool`** — decorator voor tool-definities
+- **`langchain_core.messages`** — gestructureerd berichtenformaat
 
-Dit maakt de agent:
-- **slimmer**
-- **contextbewust**
-- **realtime**
-- **efficiënter**
+De agent:
+- Haalt Jira-status op → samenvatten voor supportmedewerker
+- Vindt relevante Confluence-documenten → gebruikt in antwoord
+- Genereert KB-artikelen → automatisch opgeslagen als concept
+- Analyseert tickets of clusters → aanbevelingen genereren
 
 ---
 
@@ -151,7 +192,8 @@ Dit maakt de agent:
 
 Het project is modulair opgezet:
 
-- Tools worden toegevoegd via `@mcp.tool`
-- Helpers zijn gegroepeerd (Zendesk, Jira, Confluence)
-- Nieuwe tools zijn eenvoudig te registreren
-- Logging & foutafhandeling zijn centraal geregeld
+- LangChain tools worden gedefinieerd met `@tool` decorator in `zas_agent.py`
+- MCP tools worden geregistreerd via `@mcp.tool` in `tools_*.py`
+- API helpers zijn gegroepeerd in `core.py` (Zendesk, Jira, Confluence)
+- Nieuwe tools zijn eenvoudig toe te voegen aan beide lagen
+- Model is configureerbaar via `ZAS_MODEL` environment variabele
