@@ -366,7 +366,9 @@ TOOLS
 - kb_create_draft_article – maak nieuw conceptartikel
 
 GEBRUIK
-- Bij een ticket analyse check meteen of er een oude ticket is met hetzelfde probleem + kennisbank artikelen die relevant kunnen zijn.
+- Als de gebruiker vraagt om "alle open tickets van [naam]": zoek met tickets_search naar `status:open assignee:"[naam]"` (in Zendesk heet de support agent "assignee"), en probeer de verschillende tickets te begrijpen en met elkaar te verbinden.
+- Als de gebruiker vervolgens vraagt om "ze te analyseren" (verwijzend naar eerder opgehaalde tickets): voer een globale analyse uit van alle tickets samen (trends, thema's, prioriteiten).
+- Als de gebruiker vraagt om "tickets te analyseren" (nieuwe vraag, niet verwijzend naar specifieke tickets): open elk ticket met ticket_comments, begrijp het probleem, zoek direct naar relevante oude tickets met tickets_search, en zoek relevante KB-artikelen met kb_search_articles.
 - Combineer tools logisch (bv. cluster → rate → draft).  
 - Gebruik add_internal_note voor inzichten: “Situatie… Analyse… Advies…”.  
 - Controleer met kb_search_articles of het onderwerp al bestaat; maak anders een draft.  

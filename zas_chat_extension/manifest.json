@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "ZAS Chat - Eufraat",
+  "version": "1.3.0",
+  "description": "Chat met de ZAS Zendesk AI agent in Tigris-stijl.",
+  "action": {
+    "default_title": "ZAS Chat - Eufraat"
+  },
+  "permissions": [
+    "storage",
+    "tabs",
+    "sidePanel"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "options_page": "options.html",
+  "side_panel": {
+    "default_path": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}

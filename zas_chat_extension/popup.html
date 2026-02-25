@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>ZAS agent</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="header">
+      <div class="header-left">
+        <div class="logo-circle">T</div>
+        <div class="title-block">
+          <div class="title">ZAS Agent</div>
+          <div class="subtitle">Zendesk AI Chat</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button
+          id="bentley-view"
+          class="icon-button"
+          title="Bentley View – pin chat rechts in de browser"
+        >
+          Bentley
+        </button>
+        <button
+          id="reset-chat"
+          class="icon-button"
+          title="Chat resetten"
+        >
+          🗑️
+        </button>
+        <button
+          id="open-options"
+          class="icon-button"
+          title="Instellingen"
+        >
+          ⚙️
+        </button>
+      </div>
+    </header>
+
+    <main id="chat-container">
+      <div id="messages"></div>
+      <div id="status" class="status hidden"></div>
+    </main>
+
+    <form id="input-form">
+      <textarea
+        id="message-input"
+        rows="2"
+        placeholder="Typ je vraag voor de ZAS agent..."
+      ></textarea>
+      <button type="submit" id="send-button">Verstuur</button>
+    </form>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
