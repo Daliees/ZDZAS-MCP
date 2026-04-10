@@ -6,7 +6,7 @@
 #    proto: http
 
 version: 2
-authtoken: 34eOjlRlzZG7spLsgGbYE8BcdJf_4j9vAGLADPpQfxXuVyuEf
+authtoken: YOUR_NGROK_AUTH_TOKEN
 
 tunnels:
   #ft. Sjat GEeepietie
