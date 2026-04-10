@@ -1,0 +1,47 @@
+# Environment variables (never commit real credentials)
+.env
+.env.*
+!.env.example
+env-dot
+
+# ngrok config (contains auth token)
+ngrok.yml
+ngrok.log
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Logs
+*.log
+wrapper.log
+
+# Data exports and runtime files
+tickets_export.csv
+knowledge_concept_semantic_search_foutmelding.txt
+zas_feedback_log.jsonl
+get-pip.py
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
